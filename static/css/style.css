@@ -1,0 +1,61 @@
+html, body, div, p, ul, li, dl, dt, dd, h1, h2, h3, h4, h5, h6, form, input, select, button, textarea, iframe, table, th, td {
+    margin: 0;
+    padding: 0;
+    /*font-family: '幼圆';*/
+    color: white;
+
+
+}
+body{background: #000000;margin: 30px 0 100px 0}
+
+.button{font-size:15px;background: rgba(9,49,80, 0.8); border: 1px #0F435E solid; line-height: 50px; width: 100px;border-radius: 5px}
+
+.table_title{font-size:15px;background: rgba(9,49,80, 0.8); border: 1px #0F435E solid; line-height: 50px; width: 100px;
+    border-top-left-radius: 5px;border-top-right-radius: 5px;text-align: center}
+.table_content{background: rgba(9,49,80, 0.8); border: 1px #0F435E solid;
+    border-bottom-left-radius: 5px;border-bottom-right-radius: 5px;text-align: center}
+
+
+/*A*/
+p:hover {
+    color: white;
+
+}
+
+a {
+    color: #000000;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+a:visited {
+    color: #000000;
+    text-decoration: none;
+}
+
+a:link {
+    color: #000000;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #000000;
+    text-decoration: none;
+}
+
+/*img*/
+img {
+    border: 0 none;
+    vertical-align: top;
+}
+
+/*li*/
+ul, li {
+    list-style-type: none;
+}
+
+/*浮动*/
+

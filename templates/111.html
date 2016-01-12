@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+
+</body>
+<script>
+    function Mover(a, b) {
+        if (this.created = a.created, this.x = a.x, this.y = a.y, this.offset = a.offset, this.destination = a.destination, this.layer = b.el, this.zerg = a.zerg, this.color = a.color, this.speed = a.speed, this.hit = a.onMoverHit, this.x === this.destination.x && this.y === this.destination.y)return void this.hit();
+        this.randValue = Math.random();
+        var c = "clippath-" + this.randValue;
+        this.clipPath = b._defs.append("clipPath").attr("id", c), this.cliprect = this.clipPath.append("rect").attr(moverOptions.clipRect), this.obj = this.layer.append("polygon").datum(this).classed("animating", !0).attr("points", trail.points).attr("clip-path", "url(#" + c + ")").attr("fill", this.color);
+        var d = this.destination;
+        return this.dx = d.lx - this.x, this.dy = d.ly - this.y, this.distance = Math.sqrt(this.dx * this.dx + this.dy * this.dy), this.time = ~~(this.distance / a.distanceAcrossMap * this.speed), this.update(), a.zerg && this.distance > 3 * trail.height ? this.startCurve() : this.start(), this
+    }
+    var SVGOverlay = L.Class.extend({
+        initialize: function (a) {
+            L.setOptions(this, a)
+        }, onAdd: function (a) {
+            this._map = a, a._svgLayer || (a._initPathRoot(), a._svgLayer = d3.select(a._container).select("svg")), this._defs = a._svgLayer.append("defs"), this.el = a._svgLayer.append("g").datum(this.options).classed("leaflet-zoom-hide", !0), a.on("viewreset", this._reset, this), this._reset()
+        }, onRemove: function (a) {
+            this.el.remove(), a.off("viewreset", this._reset, this)
+        }, _reset: function () {
+            var a = this._map.latLngToLayerPoint(this.options.center);
+            L.DomUtil.setPosition(this.el, a)
+        }
+    });
+    L.CanvasOverlay = L.Class.extend({
+        initialize: function (a, b) {
+            this._userDrawFunc = a, L.setOptions(this, b)
+        }, drawing: function (a) {
+            return this._userDrawFunc = a, this
+        }, params: function (a) {
+            return L.setOptions(this, a), this
+        }, canvas: function () {
+            return this._canvas
+        }, context: function () {
+            return this._context
+        }, redraw: function () {
+            return this._frame || (this._frame = L.Util.requestAnimFrame(this._redraw, this)), this
+        }, onAdd: function (a) {
+            this._map = a, this._canvas = L.DomUtil.create("canvas", "leaflet-heatmap-layer"), this._context = this._canvas.getContext("2d");
+            var b = this._map.getSize();
+            this._canvas.width = b.x, this._canvas.height = b.y;
+            var c = this._map.options.zoomAnimation && L.Browser.any3d;
+            L.DomUtil.addClass(this._canvas, "leaflet-zoom-" + (c ? "animated" : "hide")), a._panes.overlayPane.appendChild(this._canvas), a.on("moveend", this._reset, this), a.on("resize", this._resize, this), a.options.zoomAnimation && L.Browser.any3d && a.on("zoomanim", this._animateZoom, this), this._reset()
+        }, onRemove: function (a) {
+            a.getPanes().overlayPane.removeChild(this._canvas), a.off("moveend", this._reset, this), a.off("resize", this._resize, this), a.options.zoomAnimation && a.off("zoomanim", this._animateZoom, this), this_canvas = null
+        }, addTo: function (a) {
+            return a.addLayer(this), this
+        }, _resize: function (a) {
+            this._canvas.width = a.newSize.x, this._canvas.height = a.newSize.y
+        }, _reset: function () {
+            var a = this._map.containerPointToLayerPoint([0, 0]);
+            L.DomUtil.setPosition(this._canvas, a), this._redraw()
+        }, _redraw: function () {
+            var a = this._map.getSize(), b = this._map.getBounds(), c = this._map.getZoom();
+            this._userDrawFunc && this._userDrawFunc(this, {
+                canvas: this._canvas,
+                context: this._context,
+                bounds: b,
+                size: a,
+                zoom: c,
+                options: this.options
+            }), this._frame = null
+        }, _animateZoom: function (a) {
+            var b = this._map.getZoomScale(a.zoom), c = this._map._getCenterOffset(a.center)._multiplyBy(-b).subtract(this._map._getMapPanePos());
+            this._canvas.style[L.DomUtil.TRANSFORM] = L.DomUtil.getTranslateString(c) + " scale(" + b + ")"
+        }
+    }), L.canvasOverlay = function (a, b) {
+        return new L.CanvasOverlay(a, b)
+    }, L.FXOverlay = L.Class.extend({
+        initialize: function (a, b, c) {
+            this._userDrawFunc = a, this._bounds = L.latLngBounds(b), L.setOptions(this, c)
+        }, drawing: function (a) {
+            return this._userDrawFunc = a, this
+        }, params: function (a) {
+            return L.setOptions(this, a), this
+        }, canvas: function () {
+            return this._canvas
+        }, context: function () {
+            return this._context
+        }, redraw: function () {
+            return this._frame || (this._frame = L.Util.requestAnimFrame(this._redraw, this)), this
+        }, onAdd: function (a) {
+            this._map = a, this._canvas = L.DomUtil.create("canvas", "leaflet-heatmap-layer"), this._context = this._canvas.getContext("2d");
+            var b = this._map.getSize();
+            this._canvas.width = b.x, this._canvas.height = b.y;
+            var c = this._map.options.zoomAnimation && L.Browser.any3d;
+            L.DomUtil.addClass(this._canvas, "leaflet-zoom-" + (c ? "animated" : "hide")), a._panes.overlayPane.appendChild(this._canvas), a.on("moveend", this._reset, this), a.on("resize", this._resize, this), a.options.zoomAnimation && L.Browser.any3d && a.on("zoomanim", this._animateZoom, this), this._reset()
+        }, onRemove: function (a) {
+            a.getPanes().overlayPane.removeChild(this._canvas), a.off("moveend", this._reset, this), a.off("resize", this._resize, this), a.options.zoomAnimation && a.off("zoomanim", this._animateZoom, this), this_canvas = null
+        }, addTo: function (a) {
+            return a.addLayer(this), this
+        }, _resize: function (a) {
+            this._canvas.width = a.newSize.x, this._canvas.height = a.newSize.y
+        }, _redraw: function () {
+            var a = this._map.getSize(), b = this._map.getBounds(), c = this._map.getZoom();
+            this._userDrawFunc && this._userDrawFunc(this, {
+                canvas: this._canvas,
+                context: this._context,
+                bounds: b,
+                size: a,
+                zoom: c,
+                options: this.options
+            }), this._frame = null
+        }, _animateZoom: function (a) {
+            var b = new L.Bounds(this._map._latLngToNewLayerPoint(this._bounds.getNorthWest(), a.zoom, a.center), this._map._latLngToNewLayerPoint(this._bounds.getSouthEast(), a.zoom, a.center)), c = b.min.add(b.getSize()._multiplyBy((1 - 1 / a.scale) / 2));
+            L.DomUtil.setTransform(this._canvas, c, a.scale)
+        }, _reset: function () {
+            var a = this._canvas, b = new L.Bounds(this._map.latLngToLayerPoint(this._bounds.getNorthWest()), this._map.latLngToLayerPoint(this._bounds.getSouthEast())), c = b.getSize();
+            L.DomUtil.setPosition(a, b.min), a.style.width = c.x + "px", a.style.height = c.y + "px"
+        }
+    }), L.fxOverlay = function (a, b, c) {
+        return new L.FXOverlay(a, b, c)
+    };
+    var ipv = {version: "0"}, ZERO = 1e-6, TWO_PI = 2 * Math.PI, ipv_helpers = {
+        sort_descCountAscCountry: function (a, b) {
+            return b.count > a.count ? 1 : b.count < a.count ? -1 : a.country < b.country ? 1 : b.country < a.country ? -1 : 0
+        }, sort_descCountAscService: function (a, b) {
+            return b.count > a.count ? 1 : b.count < a.count ? -1 : a.service < b.service ? 1 : b.service < a.service ? -1 : 0
+        }, return_cx: function (a) {
+            return a.cx
+        }, return_cy: function (a) {
+            return a.cy
+        }, return_data: function (a) {
+            return a.data
+        }, d3_identity: function (a) {
+            return a
+        }
+    };
+    ipv.hash = {
+        args: {}, parse: function (a) {
+            a = (a || window.location.search).replace(/^\?/, "");
+            var b = {};
+            return a.split("&").forEach(function (a) {
+                a = a.split("="), b[a[0]] = a[1]
+            }), this.args = b, b
+        }, set: function () {
+        }
+    }, function (a) {
+        a.stream = {
+            timestamp: d3.time.format("%Y-%m-%d %H:%M:%S.%L"),
+            active: null,
+            backlog: [],
+            timeout: 2e3,
+            paused: !1
+        }, a.stream.socket = function (b, c) {
+            c = c || function () {
+            };
+            var d = this.sock = new WebSocket(b.host), e = null;
+            return d.onopen = function () {
+                e && clearInterval(e), d.send(b.psk)
+            }, d.onmessage = c, d.onclose = function (f, g) {
+                if (g) {
+                    var h = this;
+                    e = setInterval(function () {
+                        d = h.sock = a.stream.socket(b, c), h.timeout *= 2, clearInterval(e), e = null
+                    }, this.timeout)
+                }
+            }, d.onerror = function () {
+                d.close(1e3, !0)
+            }, a.stream.active = d, d
+        }, a.stream.json = function (b, c, d) {
+            function e(b) {
+                b = b.map(function (a) {
+                    return {data: JSON.stringify(a), timestamp: a.timestamp}
+                });
+                var c = d3.nest().key(function (b) {
+                    return "string" == typeof b.timestamp && (b.timestamp = +a.stream.timestamp(b.timestamp)), Math.round(b.timestamp / g) * g
+                }).map(b), d = d3.keys(c).map(Number);
+                return d.sort(d3.ascending), {sortedByDate: c, times: d}
+            }
+
+            function f(e) {
+                var f = e.times, h = f[0], i = setInterval(function () {
+                    f.length ? (f[0] === h && e.sortedByDate["" + f.shift()].forEach(c), h += g) : (clearInterval(i), d && a.stream.json(b, c))
+                }, g)
+            }
+
+            var g = 100;
+            if ("object" == typeof b) {
+                console.log(b);
+                var h = e(b);
+                f(h)
+            } else d3.json(b, function (a, b) {
+                if (a)throw a;
+                var b = e(b);
+                f(b)
+            })
+        }, a.stream.pause = function () {
+            if (a.stream.active) {
+                var b = a.stream;
+                b.paused = !0, b.backlog.length = 0, b.msgHandler = b.active.onmessage.bind({}), b.active.onmessage = function (a) {
+                    b.backlog.length >= 5e3 && b.backlog.shift(), b.backlog.push(a)
+                }
+            }
+        }, a.stream.play = function () {
+            if (a.stream.active) {
+                var b = a.stream;
+                b.paused = !1, b.active.onmessage = b.msgHandler.bind(b.active), b.backlog.forEach(function (a) {
+                    b.active.onmessage(a)
+                }), b.backlog.length = 0
+            }
+        }, a.stream.appliance = function (b, c)
+        {{var d=a.stream.socket(b,c);Date.now()}return a.stream.play=function(){d.send("RESUME"),a.stream.paused=!1},a.stream.pause=function(){d.send("STOP"),a.stream.paused=!0},a.stream.jump=function(b){d.send("START:"+b),a.stream.paused=!1},{socket:d}}
+    }(ipv || {}), ipv.map = function (a) {
+        var b = L.map(a.container, a.options);
+        return b._proj = function (a, c) {
+            var d = b.latLngToLayerPoint(new L.LatLng(c, a));
+            return [d.x, d.y]
+        }, b
+    };
+    var trail = function () {
+        for (var a = 2, b = 2 * a, c = 40 * b, d = 6, e = {
+            x: a,
+            y: a
+        }, f = Math.PI / 2, g = 3 * Math.PI / 2, h = [], i = 0; d >= i; ++i) {
+            var j = f + (g - f) * (i / d), k = e.x + a * Math.cos(j), l = e.y + a * Math.sin(j);
+            h.push([k - a, l - a])
+        }
+        return h.push([c, b / 2], h[0]), {points: h, base: b, height: a + c, radius: a, center: {x: c / 2, y: b / 2}}
+    }(), moverOptions = {
+        clipRect: {
+            x: -trail.radius,
+            y: -trail.radius,
+            width: trail.height,
+            height: trail.base
+        }
+    }, HALFPI = Math.PI / 2, TODEGREES = 180 / Math.PI;
+    Mover.prototype.startCurve = function () {
+        function a() {
+            return function (a) {
+                var b = 1 - a, g = b * b, h = 2 * b * a, i = a * a, j = g * e + h * m.x + i * c, k = g * f + h * m.y + i * d, l = Math.atan2(n[1] - k, n[0] - j);
+                return n[0] = j, n[1] = k, "translate(" + [j, k] + ") rotate(" + l * TODEGREES + ", 0, 0)"
+            }
+        }
+
+        {
+            var b = this.destination, c = b.lx, d = b.ly, e = this.x, f = this.y;
+            this.dx
+        }
+        dy = this.dy, distance = this.distance, radius = distance / 2 * (this.randValue - .5), height = trail.height;
+        var g = height / distance, h = height, i = this, j = this.time, k = Math.atan2(f - d, e - c), l = k + HALFPI, m = {
+            x: (e + c) / 2 + radius * Math.cos(l),
+            y: (f + d) / 2 + radius * Math.sin(l)
+        }, n = [e, f], o = ~~(j * g);
+        this.cliprect.attr("width", 0).transition().duration(o).ease("linear").attr("width", h), this.obj.transition().duration(o).ease("linear").attr("transform", a()(g)).each("end", function () {
+            g = 1 === g ? 0 : g, _1mpos = 1 - g;
+            var b = function (a) {
+                return a >= 1 ? 1 : a * _1mpos + g
+            };
+            i.obj.transition().duration(j).ease(b).attrTween("transform", a).each("end", function () {
+                i.cliprect.transition().duration(o).ease("linear").attr("width", 0).each("end", function () {
+                    i.animating = !1, i.x = c, i.y = d, i.die()
+                })
+            })
+        })
+    }, Mover.prototype.start = function () {
+        var a = this.destination, b = this.distance, c = trail.height, d = "translate(" + [a.lx + this.offset.x, a.ly + this.offset.y] + ") rotate(" + this.svgRotation() + ")";
+        if (1.2 * c > b)var e = 1, f = b; else var e = c / b, f = c;
+        var g = this.time, h = [this.dx * e + this.x, this.dy * e + this.y], i = this, j = ~~(g * e);
+        this.cliprect.attr("width", 0).transition().duration(j).ease("linear").attr("width", f), this.obj.transition().duration(j).ease("linear").attr("transform", "translate(" + h + ") rotate(" + this.svgRotation() + ")").each("end", function () {
+            i.obj.transition().duration(g).ease("linear").attr("transform", d).each("end", function () {
+                i.cliprect.transition().duration(j).ease("linear").attr("width", 0).each("end", function () {
+                    i.animating = !1, i.x = a.lx, i.y = a.ly, i.die()
+                })
+            })
+        })
+    }, Mover.prototype.theta = function (a) {
+        return 180 * Math.atan2(this.y - a.ly, this.x - a.lx) / Math.PI
+    }, Mover.prototype.svgRotation = function () {
+        return [this.theta(this.destination), 0, 0]
+    }, Mover.prototype.update = function () {
+        this.obj.attr("transform", "translate(" + [this.x, this.y] + ") rotate(" + this.svgRotation() + ")")
+    }, Mover.prototype.setPosition = function (a, b) {
+        this.destination = b, this.obj.attr("transform", "translate(" + [this.x = a.x, this.y = a.y] + ") rotate(" + this.svgRotation() + ")")
+    }, Mover.prototype.die = function () {
+        this.obj.remove(), this.clipPath.remove(), this.hit();
+        return this.layer.append("circle").classed("animating", !0).attr({
+            cx: this.x + this.offset.x,
+            cy: this.y + this.offset.y,
+            stroke: this.color,
+            fill: "none",
+            "stroke-width": 5,
+            r: 1e-6
+        }).style("stroke-opacity", 1).transition().duration(2600).ease("cubic-out").style("stroke-opacity", 1e-6).attr("r", 100).remove(), !1
+    }, ipv.ui = function () {
+        "use strict";
+        function a(a) {
+            var d = a.selectAll(".module").data(d3.values(b), function (a) {
+                return a.key
+            }), e = d.enter().append("div").classed("module", !0).attr("id", function (a) {
+                return "ui-datatable-" + a.key
+            }).style("width", function (a) {
+                return a.width
+            }), f = (e.append("div").classed("title", !0).text(function (a) {
+                return a.name.toUpperCase()
+            }), e.append("table").classed("table", !0)), g = d.select("table").datum(function (a) {
+                return a
+            });
+            f.append("thead").append("tr").classed("header", !0).selectAll("td").data(function (a) {
+                return a.columns
+            }).enter().append("td").attr("class", function (a) {
+                return "count" === a.attr || "timestamp" === a.attr ? "number" : ""
+            }).style("width", function (a) {
+                return a.width
+            }).text(function (a) {
+                return a.display
+            }), f.append("tbody"), g.each(function (a) {
+                c.datatables[a.key] = d3.select(this)
+            }), c.minibar = d.select(".title").append("div").classed("minibar", !0), c.minibar.each(function (a) {
+                a.viz || this.parentNode.removeChild(this)
+            });
+            var h = ipv.ui.widgets.clock();
+            c.clock = {
+                update: h,
+                el: a.append("div").datum([]).attr({id: "ui-clock", "class": "module"})
+            }, c.clock.el.call(h), c.minimizebutton = a.call(ipv.ui.widgets.minimizebutton)
+        }
+
+        var b, c = {datatables: {}, minibar: {}}, d = ipv.ui.cellfmt;
+        a.layout = function (c) {
+            return arguments.length ? (b = {}, c.forEach(function (a) {
+                b[a.key] = a
+            }), a) : b
+        }, a.widgets = function (a) {
+            function b(a, d) {
+                if (d = d || c, !a.length)return d;
+                var e = d[a.shift()];
+                return e ? (d = e, b(a, d)) : d
+            }
+
+            return a && "string" == typeof a ? b(a.split(".")) : c
+        }, a.center = null;
+        var e = {
+            returnType: function (a) {
+                return a.type
+            }, returnData: function (a) {
+                return a.data
+            }, minibarHeight: function (a, b) {
+                return ~~(a.count / b * 100) + "%"
+            }, minibarBackground: function (a) {
+                "service" === a.type && d3.select(this).style("background-color", a.color)
+            }
+        };
+        return a.update = function (a) {
+            var b = c.minibar.data(a.datatables, e.returnType);
+            b.each(function (a) {
+                var b = a.data, c = document.createDocumentFragment(), d = document.createElement("div"), f = this.__data__.data[0], g = f ? f.count : 0;
+                for (d.className = "bars-container", b.forEach(function (a) {
+                    var b = document.createElement("div");
+                    b.className = "bar", b.style.height = e.minibarHeight(a, g), "service" === a.type && (b.style["background-color"] = a.color), d.appendChild(b)
+                }), c.appendChild(d); this.firstChild;)this.removeChild(this.firstChild);
+                this.appendChild(c)
+            }), a.datatables.forEach(function (a) {
+                var b = c.datatables[a.type].select("tbody").node(), e = b.previousSibling.firstChild, f = (document.createDocumentFragment(), document.createElement("tbody"));
+                a.data.forEach(function (b) {
+                    var c = document.createElement("tr");
+                    c.className = "row", c.__data__ = b, d[a.type](b).forEach(function (a, b) {
+                        var d = document.createElement("td");
+                        d.className = "cell " + e.children[b].className, a instanceof Element ? d.appendChild(a) : d.innerHTML = a, c.appendChild(d)
+                    }), f.appendChild(c)
+                }), b.parentNode.replaceChild(f, b)
+            }), c.clock.el.datum(a.clock).call(c.clock.update)
+        }, a
+    }, ipv.ui.dispatch = d3.dispatch("toggleMinimize"), ipv.ui.widgets = {
+        minibar: function () {
+            function a() {
+            }
+
+            return a
+        }, clock: function () {
+            function a(a) {
+                f = 500, g = f / 1.6, h = {x: f / 2, y: f / 2}, i = f / 12, j = i / 2;
+                var b = Math.min(a.clientWidth, 160);
+                return d3.select(a).select("svg").attr({
+                    width: b,
+                    height: b
+                }).attr("viewBox", "-200 150 900 200").attr("preserveAspectRatio", "xMidYMid meet"), l = {
+                    x1: 0,
+                    y1: j,
+                    x2: i,
+                    y2: j
+                }, !0
+            }
+
+            function b(b) {
+                b.each(function (b) {
+                    if (!o) {
+                        a(this), o = !0;
+                        var c = d3.select(this).selectAll("svg").data([b]), f = c.enter().append("svg").append("g");
+                        f.each(d), k = c.select("g")
+                    }
+                    var i = this, m = Date.now();
+                    b.length < 10 && a(this) && (b = []), window.addEventListener("resize", function () {
+                        a(i)
+                    });
+                    var p = k.selectAll("line").data(b, function (a) {
+                        return a.$loki
+                    });
+                    p.style("stroke-opacity", function (a) {
+                        return 1 - (m - a.meta.created) / n
+                    });
+                    var q = Math.PI / 180;
+                    p.enter().append("line").classed("ticker-line", !0).attr(l).style("stroke", function (a) {
+                        return a.service.color
+                    }).style("stroke-width", 3).attr("transform", function () {
+                        var a = -e * q, b = h.x + g * Math.cos(a), c = h.y + g * Math.sin(a);
+                        return "translate(" + [b - j, c - j] + ") rotate(" + [-e, j, j] + ")"
+                    }), p.exit().remove()
+                })
+            }
+
+            function c() {
+                return function (a) {
+                    return e = 360 * a, "rotate(" + [e, h.x, h.y] + ")"
+                }
+            }
+
+            function d() {
+                var a = d3.select(this);
+                a.interrupt().transition(), a.attr("transform", "rotate(0," + [h.x, h.y] + ")").transition().duration(m).ease("linear").attrTween("transform", c).each("end", d)
+            }
+
+            var e, f, g, h, i, j, k, l, m = 3e4, n = m + .01 * m, o = !1;
+            return b.center = function (a) {
+                return arguments.length ? (h = a, b) : h
+            }, b
+        }, minimizebutton: function () {
+            function a(a, e) {
+                e = +e || 1e3;
+                var f = d.node().clientHeight + "px", g = b ? "" : f, h = d3.select(this.parentNode);
+                d.classed("maximized", b).text(c[+b]), h.transition().duration(e).style("height", g), a && a(b), b = !b
+            }
+
+            var b = !1, c = ["+", "_"], d = this.append("div").classed("minimize-button maximized", !0).text("_");
+            return ipv.ui.dispatch.on("toggleMinimize", a), d
+        }
+    }, ipv.ui.cellfmt = {
+        source: function (a) {
+            return [a.count || "&nbsp;", a.display || "&nbsp;"]
+        }, target: function (a) {
+            return [a.count, a.display]
+        }, service: function (a) {
+            return [a.count || "&nbsp;", a.port || "&nbsp;", a.display || "&nbsp;"]
+        }, events: function (a) {
+            var b = a.service, c = document.createElement("span");
+            return c.style.color = b.color, c.innerText = b.service, [a.timestamp, a.org, a.ip, a.source, a.target, c, b.port]
+        }, empty: function () {
+            return ["&nbsp;", "&nbsp;", "&nbsp;"]
+        }
+    };
+    var DEBUG = {};
+    !function () {
+        function a() {
+            return I = z.embed ? !1 : window.innerWidth >= G && window.innerHeight >= H ? !0 : !1
+        }
+
+        function b(a) {
+            var b = K.find(a), c = {meta: {totalLinks: b.length, maxFreq: 0}, data: {}};
+            return b.forEach(function (a) {
+                var b = a.sourceObj, d = a.targetObj, e = b.key + d.key, f = a.service, g = f.port, h = c.data[e] || (c.data[e] = {
+                            count: 0,
+                            max: {port: "unknown", count: 0},
+                            source: [b.lx, b.ly],
+                            target: [d.lx, d.ly],
+                            ports: {}
+                        });
+                ++h.count > c.meta.maxFreq && (c.meta.maxFreq = h.count);
+                var i = h.ports[g] = (h.ports[g] || 0) + 1;
+                i > h.max.count && (h.max.color = f.color, h.max.port = g, h.max.count = i)
+            }), c.data = d3.values(c.data), c
+        }
+
+        function c(a) {
+            var b = n.selectAll(".links").data(a.data);
+            b.enter().append("path").classed("links", !0), b.attr("d", function (a) {
+                return "M" + [a.source] + "L" + [a.target]
+            }).style("stroke", function (a) {
+                return a.max.color
+            }).style("stroke-width", function (b) {
+                return Math.max(1, b.count / a.meta.maxFreq * 5)
+            }).style("stroke-opacity", function (b) {
+                return b.count / a.meta.totalLinks + .5
+            }), b.exit().remove()
+        }
+
+        function d() {
+            n.selectAll(".links").remove()
+        }
+
+        function e(a) {
+            var b = Date.now(), c = b - a;
+            K.removeWhere(function (a) {
+                var b = a.meta.created <= c;
+                return b && ([a.sourceObj, a.targetObj].forEach(function (a) {
+                    a.count--, a.countryObj.count--
+                }), a.serviceObj.count--), b
+            })
+        }
+
+        function f(e, f, i, m, n, o) {
+            function p(b) {
+                function c(a, b) {
+                    b = +b || 1e3;
+                    var c = k[+a], d = k[+!a];
+                    c.style("fill-opacity", 1).transition().duration(b).style("fill-opacity", 1e-6).each("end", function () {
+                        c.style("visibility", "hidden"), d.style("visibility", "visible").style("fill-opacity", 1e-6).transition().duration(b / 2).style("fill-opacity", 1)
+                    })
+                }
+
+                function d(a, b) {
+                    b = +b || 1e3;
+                    var c = d3.select(this).selectAll(".module");
+                    c.style("opacity", a ? 1e-6 : 1).transition().duration(b).style("opacity", a ? 1 : 1e-6)
+                }
+
+                function e(a, b) {
+                    b = +b || 1e3, c.call(this, a, b), d.call(this, a, b)
+                }
+
+                function f() {
+                    return I ? {height: m.clientHeight, units: "px"} : {height: 100, units: "%"}
+                }
+
+                function g() {
+                    a();
+                    var b = f();
+                    I ? (q.style("display", "table"), r.style("display", "table-row").style("display", "table-cell").style("height", b.height + b.units)) : (q.style("display", "block"), r.style("height", ""), d3.select("#svg-toggle-info-600").style({
+                        "fill-opacity": 1,
+                        visibility: "visible"
+                    })), d3.selectAll("#infobox-map-legend, #infobox-marketing").style("height", b.height + b.units)
+                }
+
+                function h(a, b) {
+                    if (b = b || "#infobox-map-legend", a) {
+                        var c = f();
+                        d3.select(b).transition().duration(500).ease("linear").style({left: "100%"}).each("end", function () {
+                            d3.select(this).style("height", c.height + c.units)
+                        })
+                    } else d3.select(b).transition().duration(1).delay(1e3).ease("linear").styleTween("height", function () {
+                        var a = f();
+                        return function (b) {
+                            return b * a.height + a.units
+                        }
+                    }).each("end", function () {
+                        d3.select(this).style("display", "block").each(function () {
+                            I && g()
+                        }).transition().duration(500).ease("linear").style("left", "0%")
+                    })
+                }
+
+                var i = d3.select("#ui-clock svg"), j = d3.select("#chevron-container").append("svg").attr("viewBox", "0 0 700 500");
+                i.node().appendChild(b), j.node().innerHTML = i.node().innerHTML;
+                var k = [i, j], m = document.getElementById("ui"), n = d3.select(".minimize-button"), o = {
+                    miniClock: function () {
+                        function a() {
+                            b.text(c.format("h:mm A")), c.add(1, "m")
+                        }
+
+                        var b = d3.select(this).select("#time"), c = moment();
+                        a(), setInterval(a, 6e4)
+                    }, miniCal: function () {
+                        function a() {
+                            b.select("#month").text(c.format("MMM")), b.select("#day").text(c.format("DD")), b.select("#year").text(c.format("YYYY")), c.add(1, "h")
+                        }
+
+                        var b = d3.select(this), c = moment();
+                        a(), setInterval(a, 36e5)
+                    }, riskButton: function (a) {
+                        d3.select(this).on("click", a.bind(this))
+                    }
+                };
+                d3.xml("assets/tiny-buttons-small.svg", "image/svg+xml", function (a) {
+                    var b = d3.select("#ui-clock").append("div").attr("id", "tiny-widget-container"), c = b.node().appendChild(a.documentElement);
+                    c = d3.select(c).attr("viewBox", "-19 10 290 130"), c.selectAll("g").each(function () {
+                        var a = d3.select(this), b = a.attr("id"), c = o[b].bind(this);
+                        "riskButton" === b ? c(function () {
+                            h(!1, "#infobox-marketing")
+                        }) : c()
+                    });
+                    c.selectAll("text").style("font-family", "Oswald")
+                });
+                var p = j.append("g").attr("id", "infobutton-container");
+                p.append("circle").classed("infobutton", !0).attr({
+                    id: "svg-toggle-info-600",
+                    r: 100,
+                    cx: 250,
+                    cy: 250
+                }).style({
+                    fill: "#4bffff",
+                    cursor: "pointer"
+                }), p.append("text").attr("transform", "translate(" + [235, 290] + ")").text("i");
+                var q = d3.select("#infobox-map-legend"), r = d3.selectAll("#infobox-map-legend > div:not(.close)");
+                window.addEventListener("resize", g), g();
+                var s = d3.selectAll(".shield-glyphs");
+                s.selectAll(".play-text").style("visibility", "hidden"), isInline ? d3.selectAll(".svg-toggle-view, #switch-text").style("visibility", "hidden") : d3.selectAll(".svg-toggle-view").on("click", function () {
+                    window.location.href = window.location.origin + "/v1/"
+                }), n.on("mousedown.toggle", function () {
+                    ipv.ui.dispatch.toggleMinimize.call(this, e.bind(this.parentNode))
+                }), d3.select("#svg-toggle-info-600").on("click", function () {
+                    h()
+                });
+                var t = {
+                    "svg-toggle-info": function () {
+                        if (n.classed("maximized"))h(); else {
+                            var a = n.node();
+                            ipv.ui.dispatch.toggleMinimize.call(a, function (b) {
+                                e.call(a.parentNode, b, 500), h()
+                            }, 500)
+                        }
+                    }, "svg-toggle-play": function () {
+                        var a = ipv.stream.paused;
+                        a ? ipv.stream.play() : ipv.stream.pause(), s.selectAll(".play-text").style("visibility", a ? "hidden" : "visible"), s.selectAll(".pause-text").style("visibility", a ? "visible" : "hidden")
+                    }, "svg-zoom-in": function () {
+                        l.zoomIn()
+                    }, "svg-zoom-out": function () {
+                        l.zoomOut()
+                    }
+                };
+                d3.selectAll("#ui-clock svg, #chevron-container svg").on("click.shieldevents", function () {
+                    d3.select(d3.event.target).attr("class").split(" ").forEach(function (a) {
+                        t[a] && t[a]()
+                    })
+                }), d3.select("#infobox-map-legend .close").on("click", function () {
+                    n.classed("maximized") && I || d3.select("#svg-toggle-info-600").style({
+                        "fill-opacity": 1,
+                        visibility: "visible"
+                    }), h(!0)
+                }), d3.select("#infobox-marketing .close").on("click", function () {
+                    h(!0, "#infobox-marketing")
+                }), z.hasOwnProperty("about") && h(!1, "#infobox-marketing")
+            }
+
+            if (e)throw e;
+            if (t = o, i.forEach(function (a) {
+                        a.count = 0, a.port = +a.port, a.type = "service", a.color = "hsl(" + +a.port % 360 + ", 100%, 70%)", a.display = '<span style="color: ' + a.color + '">&bigcirc;</span> ' + a.service, N.insert(a)
+                    }), w = m, h(f.map), !z.embed) {
+                x = ipv.ui().layout(n);
+                var q = d3.select("body").append("div");
+                if (y = q.attr("id", "ui").call(x), g([{
+                            type: "service",
+                            data: Array.apply(null, Array(10)).map(function () {
+                                return {}
+                            })
+                        }]), y.selectAll("table").on("mouseover", function () {
+                            var a = d3.event.target;
+                            if ("row" === a.parentNode.className) {
+                                var d = a.parentNode.__data__, e = {};
+                                d.country && (e[d.type + "Country"] = d.country, c(b(e)))
+                            }
+                        }).on("mouseout", d), isInline) {
+                    var r = d3.select(document.getElementById("chevronHiddenDiv")).select("g").node();
+                    p(r)
+                } else d3.select("#controls #logo").attr("src", f.ui.logo), d3.xml("assets/controls-500-classed.svg", "image/svg+xml", function (a) {
+                    var b = d3.select(a.documentElement).select("g").node();
+                    p(b)
+                })
+            }
+            k = inlineAttacks ? ipv.stream.json(inlineAttacks, j, !0) : ipv.stream.socket(f.stream, j)
+        }
+
+        function g(a, b) {
+            for (var c = K.data, d = [], e = c.length; e-- && !(b - c[e].meta.created > 3e4);)d.push(c[e]);
+            a.push({type: "events", data: c.slice(-10)}), x.update({datatables: a, clock: d})
+        }
+
+        function h(a) {
+            function b() {
+                d(), u = l.getZoom()
+            }
+
+            function c() {
+                for (var a = M.data, b = 0, c = a.length; c > b; b++) {
+                    var d = a[b], e = l.latLngToContainerPoint(d.latLng), f = l.latLngToLayerPoint(d.latLng);
+                    d.cx = e.x, d.cy = e.y, d.lx = f.x, d.ly = f.y
+                }
+                var g = l.getPixelBounds().getSize();
+                o = Math.sqrt(g.x + g.x * g.y * g.y);
+                var h = [2, l.getScaleZoom(l.getZoom()) * l.getZoom() + 2];
+                ["source", "target", "service", "anchors"].forEach(function (a) {
+                    F[a].range(h)
+                }), p.redraw(), w || n.selectAll(".animating").style("visibility", "hidden").interrupt().transition().remove(), w = !1
+            }
+
+            var e = {
+                tiles: {
+                    toner: "http://{s}.tile.stamen.com/toner/{z}/{x}/{y}.png",
+                    watercolor: "http://{s}.tile.stamen.com/watercolor/{z}/{x}/{y}.jpg",
+                    mars: "https://{s}.tiles.mapbox.com/v3/herwig.map-tly29w1z/{z}/{x}/{y}.png",
+                    dm: "http://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png",
+                    positron: "http://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png"
+                }
+            };
+            a.tileUrl = z.tiles ? e.tiles[z.tiles.replace("/", "")] : a.tileUrl ? a.tileUrl : null, l = ipv.map(a), isInline || a.jsonBasemap ? isInline ? L.geoJson(topojson.feature(world_map, world_map.objects.countries).features, {
+                style: {
+                    fillColor: "#000",
+                    weight: 1.5,
+                    color: "#4bffff"
+                }
+            }).addTo(l) : d3.json("assets/world_map.json", function (a, b) {
+                L.geoJson(topojson.feature(b, b.objects.countries).features, {
+                    style: {
+                        fillColor: "#000",
+                        weight: 1.5,
+                        color: "#4bffff"
+                    }
+                }).addTo(l)
+            }) : (l = ipv.map(a), l.addLayer(a.tileUrl ? new L.TileLayer(a.tileUrl, {noWrap: !0}) : new L.TileLayer("norse-basemap-v1_1/{z}/{x}/{y}.png", {noWrap: !0})));
+            var f = 0, g = M.data;
+            q = function (a, b) {
+                var c = F.anchors.domain()[1], d = d3.max(g, function (a) {
+                    return a.count
+                });
+                c = d, F.anchors.domain([1, d]);
+                var e = b.context;
+                e.clearRect(0, 0, b.canvas.width, b.canvas.height), [S.data(), T.data()].forEach(function (a, c) {
+                    e.fillStyle = c ? "#ffffff" : "hsl(0, 100%, 70%)", e.beginPath();
+                    for (var d = 0, f = a.length; f > d; d++) {
+                        var g = a[d];
+                        if (b.bounds.contains(g.latLng)) {
+                            var h = 0 | g.cx, i = 0 | g.cy;
+                            e.moveTo(h, i), e.arc(h, i, g.displayRadius = F.anchors(g.count), 0, TWO_PI)
+                        }
+                    }
+                    e.fill(), e.closePath()
+                }), g.length > f && (f = g.length, v = E(g))
+            }, p = L.canvasOverlay().drawing(q).addTo(l), p._context.globalAlpha = .5, p._context.globalCompositeOperation = "lighter", d3.select(p._canvas).classed("anchor-layer", !0);
+            var h = document.createElement("canvas"), j = h.getContext("2d");
+            h.width = h.height = B, r = L.canvasOverlay().drawing(function (a, b) {
+                b.context.clearRect(0, 0, b.canvas.width, b.canvas.height)
+            }).addTo(l), a.hideAnchors && a.hideAnchors === !0 && d3.select(".anchor-layer").style("visibility", "hidden");
+            var k = r._context;
+            k.globalCompositeOperation = "lighter", s = function () {
+                if (t) {
+                    var a = Math.random() > .7;
+                    if (!this.zerg || !a) {
+                        var b = this.color, c = this.destination, d = (0 | c.displayRadius) * (this.zerg ? 5 : 2), e = (Math.random() - .5) * d - C, f = (Math.random() - .5) * d - C;
+                        b !== D && (j.clearRect(0, 0, B, B), j.save(), j.drawImage(t, 0, 0), j.fillStyle = b, j.globalCompositeOperation = "source-atop", j.fillRect(0, 0, B, B), j.restore(), D = b), k.drawImage(h, c.cx + e | 0, c.cy + f | 0), a && (k.save(), k.globalCompositeOperation = "destination-out", k.fillStyle = "rgba(255, 255, 255, 0.1)", k.fillRect(0, 0, k.canvas.width, k.canvas.height), k.restore())
+                    }
+                }
+            }, i(p._canvas), m = new SVGOverlay(a.options), l.addLayer(m), n = m.el;
+            var w = !0;
+            l.on("viewreset", c), c(), l.on("zoomstart", b), l.on("moveend", c)
+        }
+
+        function i() {
+            var a = null;
+            document.getElementById("map").addEventListener("mousemove", function (e) {
+                if (v) {
+                    var f, g = e.pageX, h = e.pageY;
+                    if (v.visit(function (a, b, c, d, e) {
+                                if (f)return !0;
+                                if (g >= b && d >= g && h >= c && e >= h) {
+                                    var i = a.point;
+                                    if (i) {
+                                        var j = g - i.cx, k = h - i.cy, l = Math.sqrt(j * j + k * k);
+                                        if (l <= i.r)return f = i, !0
+                                    }
+                                }
+                            }), f) {
+                        a = f.key;
+                        var i = {}, j = f.type + "Key";
+                        i[j] = f.key, c(b(i))
+                    } else d()
+                }
+            })
+        }
+
+        function j(a) {
+            a = JSON.parse(a.data);
+            var b, c, d = {
+                source: {
+                    key: (b = a.latitude) + "_" + (c = a.longitude),
+                    latLng: [+b, +c],
+                    country: a.country,
+                    locString: (a.city && a.city + ", " || "") + a.country
+                },
+                target: {
+                    key: (b = a.latitude2) + "_" + (c = a.longitude2),
+                    latLng: [+b, +c],
+                    country: a.country2,
+                    locString: (a.city2 && a.city2 + ", " || "") + a.country2
+                }
+            }, e = +a.dport, f = "hsl(" + +e % 360 + ", 100%, 70%)", h = N.findOne({port: e}) || N.insert({
+                        type: "service",
+                        port: e,
+                        color: f,
+                        service: "unknown",
+                        count: 0,
+                        display: '<span style="color: ' + f + '">&bigcirc;</span> unknown'
+                    });
+            ++h.count, N.update(h), ["target", "source"].forEach(function (a) {
+                var b, c, e = d[a], f = e.country, g = w[f];
+                if (!(b = M.findOne({$and: [{key: e.key}, {type: a}]}))) {
+                    var h = l.latLngToContainerPoint(e.latLng), i = l.latLngToLayerPoint(e.latLng);
+                    b = M.insert({
+                        key: e.key,
+                        cx: h.x,
+                        cy: h.y,
+                        lx: i.x,
+                        ly: i.y,
+                        latLng: e.latLng,
+                        country: e.country,
+                        type: a,
+                        count: 0,
+                        r: 10
+                    })
+                }
+                d[a].document = b, ++b.count, (c = O.findOne({$and: [{type: a}, {country: f}]})) || (c = O.insert({
+                    type: a,
+                    country: f,
+                    countryName: g,
+                    display: '<img class="flag" src="img/flags/' + f + '.png"> ' + g,
+                    count: 0
+                })), ++c.count, b.countryObj = c, O.update(c)
+            });
+            var i = d.source, j = d.target, k = i.document, q = j.document, r = moment().format("HH:mm:ss.SSS"), t = {
+                timestamp: r,
+                org: a.org,
+                ip: a.md5,
+                source: i.locString,
+                target: j.locString,
+                sourceKey: i.key,
+                targetKey: j.key,
+                sourceCountry: a.country,
+                targetCountry: a.country2,
+                sourceObj: k,
+                targetObj: q,
+                serviceObj: h,
+                service: h,
+                type: "events"
+            };
+            K.insert(t);
+            var u = a.zerg ? {x: 20 * (Math.random() - .5), y: 20 * (Math.random() - .5)} : {x: 0, y: 0};
+            n.append("circle").classed("animating", !0).attr({
+                cx: k.lx + u.x,
+                cy: k.ly + u.y,
+                fill: "none",
+                stroke: h.color,
+                "stroke-width": 5,
+                r: 1e-6
+            }).style("stroke-opacity", 1).transition().duration(4e3).ease("cubic-out").style("stroke-opacity", 1e-6).attr("r", 80).remove();
+            var v = (new Mover({
+                zerg: a.zerg,
+                x: k.lx,
+                y: k.ly,
+                destination: q,
+                latLng: k.latLng,
+                lastLatLng: k.latLng,
+                fixed: !1,
+                port: e,
+                color: f,
+                speed: A,
+                offset: u,
+                onMoverHit: s,
+                distanceAcrossMap: o
+            }, m), [{type: "source", data: P.data().slice(0, 10)}, {
+                type: "service",
+                data: R.data().slice(0, 10)
+            }, {type: "target", data: Q.data().slice(0, 10)}]), x = v[1].data;
+            x.length < 10 && Array.prototype.push.apply(x, Array.apply(null, Array(10 - x.length)).map(function () {
+                return {}
+            })), a.zerg || p.redraw(), !z.embed && I && g(v, t.meta.created)
+        }
+
+        var k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z = ipv.hash.parse(), A = 1e3 * +(z.speed || 40), B = 16, C = B / 2, D = null, E = d3.geom.quadtree().x(ipv_helpers.return_cx).y(ipv_helpers.return_cy), F = {
+            counts: {
+                source: 0,
+                target: 0,
+                service: 0
+            },
+            source: d3.scale.sqrt().domain([0, 1]).range([2, 16]),
+            target: d3.scale.sqrt().domain([0, 1]).range([2, 16]),
+            service: d3.scale.sqrt().domain([0, 1]).range([2, 16]),
+            anchors: d3.scale.sqrt().domain([0, 1]).range([2, 20])
+        }, G = 600, H = 450, I = !0;
+        window.addEventListener("resize", a), a();
+        var J = new loki("attacks"), K = J.addCollection("timeline", {indices: ["source", "target", "service"]}), M = J.addCollection("anchors", {indices: ["key", "country", "type", "count"]}), N = J.addCollection("services", {indices: ["port"]}), O = J.addCollection("countries", {indices: ["country", "type"]}), P = O.addDynamicView("source_countries");
+        P.applyFind({type: "source"}), P.applySort(ipv_helpers.sort_descCountAscCountry);
+        var Q = O.addDynamicView("target_countries");
+        Q.applyFind({type: "target"}), Q.applySort(ipv_helpers.sort_descCountAscCountry);
+        var R = N.addDynamicView("sorted_services");
+        R.applyFind({count: {$gt: 0}}), R.applySort(ipv_helpers.sort_descCountAscService);
+        var S = M.addDynamicView("anchor_sources");
+        S.applyFind({type: "source"}), S.applySimpleSort("count", !0);
+        var T = M.addDynamicView("anchor_targets");
+        T.applyFind({type: "target"}), T.applySimpleSort("count", !0);
+        var U = 48e4;
+        setTimeout(function () {
+            setInterval(function () {
+                e(U)
+            }, 6e4)
+        }, U), queue().defer(d3.json, "config.json").defer(d3.csv, "data/nmap-services-1500.csv").defer(d3.json, "data/country_codes.json").defer(d3.json, "layout.json").defer(function (a, b) {
+            var c = new Image;
+            c.onload = function () {
+                b(null, this)
+            }, c.onerror = function () {
+                b("error loading particle image")
+            }, c.src = a
+        }, "assets/particle-16px.png").await(f), z["%E2%99%9B"] && "%E2%98%82" === z["%E2%99%9B"] && d3.selectAll("#map").classed("tripping", !0)
+    }();
+</script>
+</html>

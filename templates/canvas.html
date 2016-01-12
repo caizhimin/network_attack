@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<style>
+    #canvas {
+        background: #eeeeee;
+        border: thin solid cornflowerblue;
+    }
+
+    #radios {
+        padding: 10px
+    }
+
+    svg {
+        border: 1px solid #000000
+    }
+
+    .linetext {
+        font-size: 12px;
+        font-family: SimSun;
+        fill: #0000FF;
+        fill-opacity: 0.0;
+    }
+
+    .axis path,
+.axis line{
+	fill: none;
+	stroke: black;
+	shape-rendering: crispEdges;
+}
+
+.axis text {
+	font-family: sans-serif;
+	font-size: 11px;
+}
+
+
+
+	.province {
+		stroke: black;
+		stroke-width: 1px;
+	}
+
+	.southsea {
+		stroke: black;
+		stroke-width: 1px;
+		fill: #ccc;
+	}
+
+	.valueText {
+		font-family: arial;
+		font-size: 12px;
+		text-anchor: middle;
+	}
+
+
+</style>
+<body>
+<svg>
+
+<text x="0" y="0" font-size="30" font-family="simsun">
+<tspan x="10" dy="1em">夜来幽梦忽还乡</tspan>
+<tspan x="20" dy="1em">小轩窗</tspan>
+<tspan x="30" dy="1em">正梳妆</tspan>
+</text>
+
+</svg>
+<svg>
+
+</svg>
+{#<canvas id="canvas" width="1000" height="1000"></canvas>#}
+<script src="/static/js/d3.js"></script>
+</body>
+<script>
+
+    //画布大小
+    var width = 1000;
+    var height = 1000;
+
+    var img_w = 77;
+    var img_h = 90;
+
+    //在 body 里添加一个 SVG 画布
+    var svg = d3.select("body")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .append('g')
+            .attr('transform', 'translate(50, 0)')
+
+    var color = d3.scale.category20();   //有十种颜色的颜色比例尺
+
+    var arrowMarker = svg.append("marker")
+            .attr("id", "arrow")
+            .attr("markerUnits", "strokeWidth")
+            .attr("markerWidth", "12")
+            .attr("markerHeight", "12")
+            .attr("viewBox", "0 0 12 12")
+            .attr("refX", "6")
+            .attr("refY", "6")
+            .attr("orient", "auto");
+
+    var arrow_path = "M2,2 L10,6 L2,10 L6,6 L2,2";  //这是箭头的呈现路径
+
+    arrowMarker.append("path")
+            .attr("d", arrow_path)
+            .attr("fill", "blue");
+
+    //绘制直线
+    var line = svg.append("line")
+            .attr("x1", 50)
+            .attr("y1", 50)
+            .attr("x2", 50)
+            .attr("y2", 100)
+            .attr("stroke", "red")
+            .attr("stroke-width", 2)
+            .attr('class', 'line')
+            .attr("marker-end", "url(#arrow)")
+            .transition().duration('5000')
+            .ease('linear')
+            .attr('transform', 'translate(50,500)')
+
+
+
+    {##}
+    {##}
+    {#//绘制曲线#}
+    {#var curve_path = "M20,70 T80,100 T160,80 T200,90";#}
+    {##}
+    {#var curve = svg.append("path")#}
+    {#          .attr("d",curve_path)#}
+    {#          .attr("fill","white")#}
+    {#          .attr("stroke","red")#}
+    {#          .attr("stroke-width",2)#}
+    {#          .attr("marker-start","url(#arrow)")#}
+    {#          .attr("marker-mid","url(#arrow)")#}
+    {#          .attr("marker-end","url(#arrow)")#}
+
+
+    /*
+x轴向右，y轴向下
+*/
+
+
+
+</script>
+<script>
+
+var width = 400,
+	height = 400;
+
+var svg = d3.select("body").append("svg")
+	.attr("width", width)
+	.attr("height", height);
+
+var a = d3.rgb(255,0,0);	//红色
+var b = d3.rgb(0,255,0);	//绿色
+
+var compute = d3.interpolate(a,b);
+
+var linear = d3.scale.linear()
+				.domain([0,160])
+				.range([0,1]);
+
+console.log(d3.range(160))
+var rects = svg.selectAll("rect")
+				.data(d3.range(160))
+				.enter()
+				.append("rect")
+				.attr("x",function(d,i){
+					return i%16 * 16;
+				})
+				.attr("y",function(d,i){
+					return Math.floor(i/16) * 16;
+				})
+				.attr("width",16)
+				.attr("height",16)
+				.style("fill",function(d){
+					return compute(linear(d));
+				})
+				.on("mouseover",function(d){
+					d3.select(this)
+						.style("fill","yellow");
+				})
+				.on("mouseout",function(d){
+					d3.select(this)
+						.style("fill",compute(linear(d)).toString());
+				});
+
+
+//定义一个线性渐变
+var defs = svg.append("defs");
+
+var linearGradient = defs.append("linearGradient")
+						.attr("id","linearColor")
+						.attr("x1","0%")
+						.attr("y1","0%")
+						.attr("x2","100%")
+						.attr("y2","0%");
+
+var stop1 = linearGradient.append("stop")
+				.attr("offset","0%")
+				.style("stop-color",a.toString());
+
+var stop2 = linearGradient.append("stop")
+				.attr("offset","100%")
+				.style("stop-color",b.toString());
+
+//添加一个矩形，并应用线性渐变
+var colorRect = svg.append("rect")
+				.attr("x", 15)
+				.attr("y", 200)
+				.attr("width", 200)
+				.attr("height", 30)
+				.style("fill","url(#" + linearGradient.attr("id") + ")")
+				.on("mouseover",function(d){
+					d3.select(this)
+						.style("fill","yellow");
+				})
+				.on("mouseout",function(d){
+					d3.select(this)
+						.style("fill","url(#" + linearGradient.attr("id") + ")");
+				});
+
+
+</script>
+
+
+</html>

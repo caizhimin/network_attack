@@ -1,0 +1,573 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+
+    <style>
+
+
+
+	.southsea {
+		stroke: #0F435E;
+		stroke-width: 4px;
+		fill: #0000;
+	}
+
+
+
+
+    </style>
+{% endblock %}
+
+
+{% block content %}
+
+    <div style="width: 100%">
+        <div style="margin: 0 auto;width: 1200px">
+            <p style="font-size: 30px">Web系统安全状态全视图</p>
+            <a href="{% url 'report' %}">
+                <button class="button" style="float: right;margin: -36px 50px 0 0;cursor: pointer">查看报表</button>
+            </a>
+        </div>
+        <div style="margin: 0 auto;width: 1200px">
+            <div style="width: 180px;height: 600px;float: left;margin: 0 0 0 0">
+                <!--攻击来源统计TOP5-->
+                <div ng-controller="attack_location_count" style="width: 180px;margin: 35px 0 20px 0">
+                    <div class="table_title" style="width: 180px">攻击来源&nbsp;&nbsp;TOP5</div>
+                    <div class="table_content" style="width: 180px;height: 180px;">
+                        <table style="font-size: 13px;margin: 10px auto">
+                            <tr style="line-height:25px">
+                                <th style="width: 100px">来源</th>
+                                <th style="width: 100px">攻击次数</th>
+                            </tr>
+                            <tr style="line-height:25px" ng-repeat="i in attack_location_count.slice(0,5)">
+                                <th>||i.location||</th>
+                                <th>||i.count||</th>
+
+                        </table>
+                    </div>
+                </div>
+                <!--攻击来源统计TOP5-->
+
+                <!--被攻击来源统计TOP5-->
+                <div ng-controller="attacked_location_count" style="width: 180px;float: left">
+                    <div class="table_title" style="width: 180px">被攻击区域&nbsp;&nbsp;TOP5</div>
+                    <div class="table_content" style="width: 180px;height: 180px;">
+                        <table style="font-size: 13px;margin: 10px auto">
+                            <tr style="line-height:25px">
+                                <th style="width: 100px">来源</th>
+                                <th style="width: 100px">被攻击次数</th>
+                            </tr>
+                            <tr style="line-height:25px" ng-repeat="i in attacked_location_count.slice(0,5)">
+                                <th>||i.location||</th>
+                                <th>||i.count||</th>
+
+                        </table>
+                    </div>
+                </div>
+                <!--被攻击来源统计TOP5-->
+            </div>
+            <!--大公鸡-->
+
+            <svg id="svg" style="float: left;margin: 15px 0 0 23px">
+
+                <g xmlns="http://www.w3.org/2000/svg" id="southsea" transform="translate(630,450)scale(0.5)" class="southsea">
+  <title>South China Sea</title>
+  <line id="svg_1" y2="7" x2="145" y1="7" x1="20"></line>
+  <line id="svg_2" y2="24" x2="6" y1="7" x1="20"></line>
+  <line id="svg_3" y2="195" x2="145" y1="7" x1="145"></line>
+  <line id="svg_4" y2="195" x2="6" y1="24" x1="6"></line>
+  <line id="svg_5" y2="195" x2="145" y1="195" x1="6"></line>
+  <path id="svg_6" d="m6,31.5l9,7.5l15,9l15,4l18,0l17,-14l21,-31L20,7L6,24z"></path>
+  <path id="svg_7" d="m113,7l10,25l11,-25z"></path>
+  <path id="svg_9" d="m46.5,66.5l14.5,-6.5l-1,13l-7,7l-15,4l8.5,-17.5z"></path>
+  <line id="svg_10" y2="46.5" x2="132.5" y1="31.5" x1="141.5"></line>
+  <line id="svg_11" y2="76.5" x2="115.5" y1="61.5" x1="121.5"></line>
+  <line id="svg_12" y2="111.5" x2="110.5" y1="92.5" x1="110.5"></line>
+  <line id="svg_13" y2="147.5" x2="101.5" y1="127.5" x1="108.5"></line>
+  <line id="svg_14" y2="177.5" x2="78.5" y1="163.5" x1="91.5"></line>
+  <line id="svg_15" y2="188.5" x2="39.5" y1="184.5" x1="54.5"></line>
+  <line id="svg_16" y2="158.5" x2="11.5" y1="172.5" x1="17.5"></line>
+  <line id="svg_17" y2="132.5" x2="39.5" y1="142.5" x1="24.5"></line>
+  <line id="svg_18" y2="98.5" x2="37.5" y1="113.5" x1="40.5"></line>
+ </g>
+
+            </svg>
+            <!--大公鸡-->
+
+            <!--攻击类型统计-->
+            <div ng-controller="attack_type_count" style="float: left;width: 180px;height: 360px;margin: 20px 0 0 15px">
+                <div class="table_title" style="width: 180px">攻击类型统计</div>
+                <div class="table_content" style="width: 100%;height: 434px;">
+                    <table style="font-size: 13px;margin: 10px auto">
+                        <tr style="line-height:25px">
+                            <th style="width: 100px">来源</th>
+                            <th style="width: 100px">攻击次数</th>
+                        </tr>
+                        <tr style="line-height:25px" ng-repeat="i in attack_type_count">
+                            <th ng-style="{color: i.color}">||i.type||</th>
+                            <th>||i.count||</th>
+                        </tr>
+
+                    </table>
+                </div>
+            </div>
+            <!--攻击类型统计-->
+
+        </div>
+
+
+        {#            <!--目标网站统计-->#}
+        {#            <div style="width: 550px;height: 360px;float: right;margin: 90px -150px 0 0"  ng-controller="target_website_count">#}
+        {#                <div class="table_title" style="width: 550px">目标网站统计</div>#}
+        {#                <div class="table_content" style="width: 100%;height: 360px;">#}
+        {#                    <table style="font-size: 13px;margin: 10px auto">#}
+        {#                        <tr style="line-height:25px">#}
+        {#                            <th style="width: 130px">目标网站</th>#}
+        {#                            <th style="width: 70px">Sql注入</th>#}
+        {#                            <th style="width: 70px">XSS</th>#}
+        {#                            <th style="width: 75px">Web后门</th>#}
+        {#                            <th style="width: 75px">文件包含</th>#}
+        {#                            <th style="width: 92px">远程命令执行</th>#}
+        {#                        </tr>#}
+        {#                        <tr style="line-height:25px" ng-repeat="i in target_website_count">#}
+        {#                            <th>||i.domain||</th>#}
+        {#                            <th>||i.xss_count||/||i.xss_valid_count||</th>#}
+        {#                            <th>||i.xss_count||/||i.xss_valid_count||</th>#}
+        {#                            <th>||i.web_count||/0</th>#}
+        {#                            <th>||i.rc_count||/0</th>#}
+        {#                            <th>||i.fc_count||/0</th>#}
+        {#                        </tr>#}
+        {##}
+        {#                    </table>#}
+        {#                </div>#}
+        {#            </div>#}
+        {#            <!--目标网站统计-->#}
+        {#    </div>#}
+
+        <div style="clear: both; width: 100%;" ng-controller="flow_info">
+            <div style="width: 1200px;margin: 0 auto">
+                <!--实时攻击信息-->
+                <div style="float:left; width: 1150px;height: 340px;">
+                    <div class="table_title" style="width: 1150px">实时攻击信息</div>
+                    <div class="table_content" style="width: 100%;height: 360px;margin: 0 0 25px 0">
+                        <table style="font-size: 13px;margin: 10px auto">
+                            <tr style="line-height:25px">
+                                <th>时间</th>
+                                <th style="width: 150px">源IP</th>
+                                <th style="width: 150px">目标IP</th>
+                                <th style="width: 250px">目标URL</th>
+                                <th style="width: 100px">目标地理位置</th>
+                                <th style="width: 150px">攻击类型</th>
+                                {#                            <th style="width: 75px">目标网站</th>#}
+                            </tr>
+                            <tr style="line-height:25px" ng-repeat="i in flow_info">
+                                <th ng-if="i.time!='None'">||i.time||</th>
+                                <th ng-if="i.time=='None'"></th>
+                                <th>||i.src_ip||</th>
+                                <th>||i.desc_ip||</th>
+                                <th>||i.url||</th>
+                                <th>||i.desc_address||</th>
+                                <th ng-if="i.type==1">Sql注入</th>
+                                <th ng-if="i.type==2">XSS</th>
+                                <th ng-if="i.type==3">Web后门</th>
+                                <th ng-if="i.type==4">远程命令执行</th>
+                                <th ng-if="i.type==5">文件包含</th>
+
+                                {#                            <th ng-if="i.type=='Sql注入'||i.type=='XSS'">||i.count||/||i.valid_count||</th>#}
+                                {#                            <th ng-if="i.type!='Sql注入'&&i.type!='XSS'">||i.count||/0</th>#}
+                                {#                            <th>||i.domain||</th>#}
+                            </tr>
+
+                        </table>
+                    </div>
+                </div>
+                <!--攻击者信息-->
+
+
+            </div>
+
+        </div>
+    </div>
+
+
+{% endblock %}
+
+{% block extra_script %}
+    <script>
+
+
+        app.controller('target_website_count', function ($scope, $http) {
+            var promise = $http({
+                method: 'GET',
+                url: '/target_website_count'
+            });
+            promise.success(function (data) {
+                $scope.target_website_count = data
+            })
+
+        })
+
+        app.controller('flow_info', function ($scope, $http) {
+
+            var currentIndex = 0;
+
+            var stop = false
+
+            function newRequest() {
+
+                if (stop) {
+                    return
+                }
+                var promise = $http({
+                    method: 'GET',
+                    url: '/flow_info/' + currentIndex
+                });
+
+                promise.success(function (data) {
+                    $scope.flow_info = data
+                    setTimeout(newRequest, 1500)
+                    currentIndex++
+                    {#                    if( $scope.flow_info.length<6){#}
+                    {#                        stop=true#}
+                    {#                    }#}
+                })
+
+
+            }
+
+            newRequest()
+
+        })
+
+        app.controller('attack_type_count', function ($scope, $http) {
+            var promise = $http({
+                method: 'GET',
+                url: '/attack_type_count'
+            });
+            promise.success(function (data) {
+                $scope.attack_type_count = data
+            })
+
+        })
+
+        app.controller('attack_location_count', function ($scope, $http) {
+            var promise = $http({
+                method: 'GET',
+                url: '/attack_location_count'
+            });
+            promise.success(function (data) {
+                $scope.attack_location_count = data
+            })
+
+        })
+
+        app.controller('attacked_location_count', function ($scope, $http) {
+            var promise = $http({
+                method: 'GET',
+                url: '/attacked_location_count'
+            });
+            promise.success(function (data) {
+                $scope.attacked_location_count = data
+            })
+
+        })
+
+
+        //画布大小
+        var width = 750;
+        var height = 570;
+
+        //在 body 里添加一个 SVG 画布
+        var svg = d3.select("#svg")
+                .attr("width", width)
+                .attr("height", height)
+                .append('g')
+                .attr('transform', 'translate(30, 100)')
+
+        var color = d3.scale.category20();   //有十种颜色的颜色比例尺
+
+        //投影函数
+        var projection = d3.geo.mercator()  //墨卡托投影
+                .center([107, 31])  //center() 设定地图的中心位置，[107,31] 指的是经度和纬度。
+                .scale(695) //scale() 设定放大的比例。
+                .translate([width / 2, height / 2]) //translate() 设定平移。
+
+        var path = d3.geo.path()  //地理路径生成器。
+                .projection(projection);
+
+        var defs = svg.append("defs");
+
+        var arrowMarker = defs.append("marker")
+                .attr("id", "arrow")
+                .attr("markerUnits", "strokeWidth")
+                .attr("markerWidth", "12")
+                .attr("markerHeight", "12")
+                .attr("viewBox", "0 0 12 12")
+                .attr("refX", "6")
+                .attr("refY", "6")
+                .attr("orient", "auto");
+
+        var arrow_path = "M0,6 L10,2 L5,6 L10,10 L0,6";
+
+        arrowMarker.append("path")
+                .attr("d", arrow_path)
+                .attr("fill", "red");
+
+
+        d3.json('/canvas/json', function (error, root) {
+            if (error)
+                return console.error(error)
+            console.log(root.features)
+            svg.selectAll('path')
+                    .data(root.features)
+                    .enter()
+                    .append('path')
+                    .attr('stroke', '#0F435E')
+                    .attr('stroke-width', 2)
+                    {#                .attr('fill', function (d, i) {#}
+                    {#                    return color(i)#}
+                    {#                })#}
+                    .attr('fill', 'black')
+                    .attr('d', path)
+            //上面这个相当于:
+            //.attr("d",funtion(d){
+            //  return path(d);
+            //})
+
+        })
+
+        //获取范围内的随机数
+        function random(min, max) {
+
+            return Math.floor(min + Math.random() * (max - min));
+
+        }
+
+
+        var colorList = ['green', 'red', 'orange', 'purple', 'deepskyblue']
+
+        function getColorByRandom(colorList) {
+            var colorIndex = Math.floor(Math.random() * colorList.length);
+            var color = colorList[colorIndex];
+            return color;
+        }
+
+        var city_coordinate = [{'city_name': '上海', 'x': 559, 'y': 282},
+            {'city_name': '北京', 'x': 490, 'y': 150}, {'city_name': '台北', 'x': 550, 'y': 364},
+            {'city_name': '重庆', 'x': 350, 'y': 300}, {'city_name': '广州', 'x': 450, 'y': 398},
+            {'city_name': '西安', 'x': 403, 'y': 230}
+        ]
+
+
+        function shanghai() {
+            svg.append('circle')
+                    .attr({
+                        cx: city_coordinate[0]['x'],
+                        cy: city_coordinate[0]['y'],
+                        fill: "none",
+                        "stroke-width": 4,
+                        r: 2
+                    })
+                    .attr('stroke', getColorByRandom(colorList))
+                    .style("stroke-opacity", 1).
+                    transition().duration(4000).
+                    ease("cubic-out").
+                    style("stroke-opacity", 0).
+                    attr("r", 80).remove()
+        }
+
+        function beijing() {
+            svg.append('circle')
+                    .attr({
+                        cx: city_coordinate[1]['x'],
+                        cy: city_coordinate[1]['y'],
+                        fill: "none",
+                        "stroke-width": 4,
+                        r: 2
+                    })
+                    .attr('stroke', getColorByRandom(colorList))
+                    .style("stroke-opacity", 1).
+                    transition().duration(4000).
+                    ease("cubic-out").
+                    style("stroke-opacity", 0).
+                    attr("r", 80).remove()
+
+
+            var line = svg.append("line")
+                    .attr("x1", 490)
+                    .attr("y1", 150)
+                    .attr("x2", 490)
+                    .attr("y2", 150)
+                    .attr("stroke", "red")
+                    .attr("stroke-width", 2)
+                    .attr('class', 'line')
+                    .attr("marker-start", "url(#arrow)")
+                // 开始线段
+                    .transition()
+                    .duration('1000')
+                    .ease('linear')
+                    .attr('x1', 490 + 24)
+                    .attr('y1', 150 + 85.6)
+                //  位移
+                    .transition()
+                    .duration('1000')
+                    .ease('linear')
+                    .attr('x1', 550)
+                    .attr('y1', 364)
+                    .attr('x2', 550 - 24)
+                    .attr('y2', 364 - 85.6)
+                // 结束线段
+                    .transition()
+                    .duration('1000')
+                    .ease('linear')
+                    .attr('x2', 550)
+                    .attr('y2', 364)
+                    .each('end', function () {
+                        line.transition()
+                                .attr('marker-start', '')
+                        taibei()
+                    });
+
+
+            {#                        .attr('x1', 550-24)#}
+            {#                        .attr('y1', 364-85.6)#}
+            {#                        .attr('x2', 550)#}
+            {#                        .attr('y2', 364)#}
+            {#                        .remove()#}
+            {#            .each('end',function(){#}
+            {#          taibei()#}
+            {#      });#}
+        }
+
+
+        function taibei() {
+            svg.append('circle')
+                    .attr({
+                        cx: city_coordinate[2]['x'],
+                        cy: city_coordinate[2]['y'],
+                        fill: "none",
+                        "stroke-width": 4,
+                        r: 2
+                    })
+                    .attr('stroke', getColorByRandom(colorList))
+                    .style("stroke-opacity", 1).
+                    transition().duration(4000).
+                    ease("cubic-out").
+                    style("stroke-opacity", 0).
+                    attr("r", 80).remove()
+
+        }
+
+        function chongqing() {
+            svg.append('circle')
+                    .attr({
+                        cx: city_coordinate[3]['x'],
+                        cy: city_coordinate[3]['y'],
+                        fill: "none",
+                        "stroke-width": 4,
+                        r: 2
+                    })
+                    .attr('stroke', getColorByRandom(colorList))
+                    .style("stroke-opacity", 1).
+                    transition().duration(4000).
+                    ease("cubic-out").
+                    style("stroke-opacity", 0).
+                    attr("r", 80).remove()
+        }
+
+        function guangzhou() {
+            svg.append('circle')
+                    .attr({
+                        cx: city_coordinate[4]['x'],
+                        cy: city_coordinate[4]['y'],
+                        fill: "none",
+                        "stroke-width": 4,
+                        r: 2
+                    })
+                    .attr('stroke', getColorByRandom(colorList))
+
+                    .style("stroke-opacity", 1).
+                    transition().duration(4000).
+                    ease("cubic-out").
+                    style("stroke-opacity", 0).
+                    attr("r", 80).remove()
+        }
+
+        function xian() {
+            svg.append('circle')
+                    .attr({
+                        cx: city_coordinate[5]['x'],
+                        cy: city_coordinate[5]['y'],
+                        fill: "none",
+                        "stroke-width": 4,
+                        r: 2
+                    })
+                    .attr('stroke', getColorByRandom(colorList))
+
+                    .style("stroke-opacity", 1).
+                    transition().duration(4000).
+                    ease("cubic-out").
+                    style("stroke-opacity", 0).
+                    attr("r", 80).remove()
+
+
+        }
+
+        {#        (function loop() {#}
+        {#            var rand1 = random(1000, 5000);#}
+        {#            setTimeout(function () {#}
+        {#                shanghai();#}
+        {##}
+        {#                loop();#}
+        {#            }, rand1);#}
+        {#        }());#}
+
+        (function loop() {
+            var rand2 = random(1000, 5000);
+            setTimeout(function () {
+                beijing();
+
+                loop();
+            }, rand2);
+        }());
+
+        {#        (function loop() {#}
+        {#            var rand2 = random(1500, 7000);#}
+        {#            setTimeout(function () {#}
+        {#                taibei();#}
+        {##}
+        {#                loop();#}
+        {#            }, rand2);#}
+        {#        }());#}
+
+        {#        (function loop() {#}
+        {#            var rand2 = random(900, 9000);#}
+        {#            setTimeout(function () {#}
+        {#                chongqing();#}
+        {##}
+        {#                loop();#}
+        {#            }, rand2);#}
+        {#        }());#}
+
+        {#        (function loop() {#}
+        {#            var rand2 = random(3000, 10000);#}
+        {#            setTimeout(function () {#}
+        {#                guangzhou();#}
+        {##}
+        {#                loop();#}
+        {#            }, rand2);#}
+        {#        }());#}
+
+        {#        (function loop() {#}
+        {#            var rand2 = random(1000, 4000);#}
+        {#            setTimeout(function () {#}
+        {#                xian();#}
+        {##}
+        {##}
+        {#                loop();#}
+        {#            }, rand2);#}
+        {#        }());#}
+
+
+    </script>
+{% endblock %}
