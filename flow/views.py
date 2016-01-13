@@ -5,9 +5,10 @@ import requests
 import threadpool
 from django.shortcuts import render_to_response
 from django.http import HttpResponse
-from flow.models import SQLInjecResult, XSSResult, WebBDResult, RCResult, FCResult, Flow
+from flow.models import Flow
 from website_user.models import Website, WebSiteReport
 from utils.logger import log
+from django.views.decorators.csrf import csrf_exempt
 # Create your views here.
 
 
@@ -34,13 +35,14 @@ def sum_list_of_list_for_same_ip(dict_list):
     for dict_item in dict_list:
         attacker_ip = dict_item['attacker_ip']
         count = dict_item['count']
-        valid_count = dict_item['valid_count']
         if dict_item['location']:
             location = dict_item['location']
+        else:
+            location = '未知'
         if attacker_ip in name_dict:
             pos = name_dict[attacker_ip]
             result_list[pos] = {'attacker_ip': attacker_ip, 'count': (result_list[pos]['count'] + count),
-                                'valid_count': (result_list[pos]['valid_count'] + valid_count), 'location': location}
+                                'location': location}
         else:
             result_list.append(dict_item)
             name_dict[attacker_ip] = len(result_list) - 1
@@ -58,269 +60,191 @@ def target_website_count(request):
         website_ip = website.IP
         domain = website.Domain
 
-        sql_inject = SQLInjecResult.objects.filter(DestIP=website_ip)
+        sql_inject = Flow.objects.filter(DescIP=website_ip, AttType=1)
         sql_inject_count = sql_inject.count()
-        if sql_inject_count:
-            sql_inject_valid_count = sql_inject.filter(SqlInjValidAtt=1).count()
-        else:
-            sql_inject_valid_count = 0
 
-        xss = XSSResult.objects.filter(DestIP=website_ip)
+        xss = Flow.objects.filter(DescIP=website_ip, AttType=2)
         xss_count = xss.count()
-        if xss_count:
-            xss_valid_count = xss.filter(XssValidAtt=1).count()
-        else:
-            xss_valid_count = 0
 
-        web = WebBDResult.objects.filter(DestIP=website_ip)
+        web = Flow.objects.filter(DescIP=website_ip, AttType=3)
         web_count = web.count()
-        if web_count:
-            web_valid_count = web.filter(WebShellValidAtt=1).count()
-        else:
-            web_valid_count = 0
 
-        rc = RCResult.objects.filter(DestIP=website_ip)
+        rc = Flow.objects.filter(DescIP=website_ip, AttType=4)
         rc_count = rc.count()
-        if rc_count:
-            rc_valid_count = rc.filter(RCE_ValidAtt=1).count()
-        else:
-            rc_valid_count = 0
 
-        fc = FCResult.objects.filter(DestIP=website_ip)
+        fc = Flow.objects.filter(DescIP=website_ip, AttType=5)
         fc_count = fc.count()
-        if fc_count:
-            fc_valid_count = fc.filter(FileInValidAtt=1).count()
-        else:
-            fc_valid_count = 0
 
-        result.append({'domain': domain, 'sql_inject_count': sql_inject_count,
-                       'sql_inject_valid_count': sql_inject_valid_count, 'xss_count': xss_count,
-                       'xss_valid_count': xss_valid_count, 'web_count': web_count,
-                       'web_valid_count': web_valid_count, 'rc_count': rc_count, 'rc_valid_count': rc_valid_count,
-                       'fc_count': fc_count, 'fc_valid_count': fc_valid_count})
+        result.append({'domain': domain, 'sql_inject_count': sql_inject_count, 'xss_count': xss_count,
+                       'web_count': web_count, 'rc_count': rc_count, 'fc_count': fc_count})
     return HttpResponse(json.dumps(result))
 
 
-def attacker_info(request):
-    result = []
-
-    sql_most_attacker = SQLInjecResult.objects.raw('SELECT *, count(*) AS count FROM flow_sqlinjecresult '
-                                                   'GROUP BY SrcIP ORDER BY count DESC LIMIT 1')
-    if sql_most_attacker:
-        for i in sql_most_attacker:
-            sql_most_attacker_ip = i.SrcIP
-            sql_most_attacker_location = i.SrcLocation
-            sql_inject = SQLInjecResult.objects.filter(SrcIP=sql_most_attacker_ip)
-            sql_inject_count = sql_inject.count()
-            sql_inject_valid_count = sql_inject.filter(SqlInjValidAtt=1).count()
-            # get website domain
-            dest_ip = i.DestIP
-            try:
-                website_domain = Website.objects.get(IP=dest_ip).Domain
-            except Exception, error:
-                log.exception(error)
-                website_domain = ''
-            result.append({'type': 'Sql注入', 'src_ip': sql_most_attacker_ip, 'location': sql_most_attacker_location,
-                           'count': sql_inject_count, 'valid_count': sql_inject_valid_count, 'domain': website_domain})
-
-    xss_most_attacker = XSSResult.objects.raw('SELECT *, count(*) AS count FROM flow_xssresult '
-                                              'GROUP BY SrcIP ORDER BY count DESC LIMIT 1')
-    if xss_most_attacker:
-        for i in xss_most_attacker:
-            xss_most_attacker_ip = i.SrcIP
-            xss_most_attacker_location = i.SrcLocation
-            xss = XSSResult.objects.filter(SrcIP=xss_most_attacker_ip)
-            xss_count = xss.count()
-            xss_valid_count = xss.filter(XssValidAtt=1).count()
-            # get website domain
-            dest_ip = i.DestIP
-            try:
-                website_domain = Website.objects.get(IP=dest_ip).Domain
-            except Exception, error:
-                log.exception(error)
-                website_domain = ''
-            result.append({'type': 'XSS', 'src_ip': xss_most_attacker_ip, 'location': xss_most_attacker_location,
-                           'count': xss_count, 'valid_count': xss_valid_count, 'domain': website_domain})
-
-    web_most_attacker = WebBDResult.objects.raw('SELECT *, count(*) AS count FROM flow_webbdresult '
-                                                'GROUP BY SrcIP ORDER BY count DESC LIMIT 1')
-    if web_most_attacker:
-        for i in web_most_attacker:
-            web_most_attacker_ip = i.SrcIP
-            web_most_attacker_location = i.SrcLocation
-            web = WebBDResult.objects.filter(SrcIP=web_most_attacker_ip)
-            web_count = web.count()
-            web_valid_count = web.filter(WebShellValidAtt=1).count()
-            # get website domain
-            dest_ip = i.DestIP
-            try:
-                website_domain = Website.objects.get(IP=dest_ip).Domain
-            except Exception, error:
-                log.exception(error)
-                website_domain = ''
-            result.append({'type': 'Web后门', 'src_ip': web_most_attacker_ip, 'location': web_most_attacker_location,
-                           'count': web_count, 'valid_count': web_valid_count, 'domain': website_domain})
-
-    rc_most_attacker = RCResult.objects.raw('SELECT *, count(*) AS count FROM flow_rcresult '
-                                            'GROUP BY SrcIP ORDER BY count DESC LIMIT 1')
-    if rc_most_attacker:
-        for i in rc_most_attacker:
-            rc_most_attacker_ip = i.SrcIP
-            rc_most_attacker_location = i.SrcLocation
-            rc = RCResult.objects.filter(SrcIP=rc_most_attacker_ip)
-            rc_count = rc.count()
-            rc_valid_count = rc.filter(RCE_ValidAtt=1).count()
-            # get website domain
-            dest_ip = i.DestIP
-            try:
-                website_domain = Website.objects.get(IP=dest_ip).Domain
-            except Exception, error:
-                log.exception(error)
-                website_domain = ''
-            result.append({'type': '远程命令执行', 'src_ip': rc_most_attacker_ip, 'location': rc_most_attacker_location,
-                           'count': rc_count, 'valid_count': rc_valid_count, 'domain': website_domain})
-
-    fc_most_attacker = FCResult.objects.raw('SELECT *, count(*) AS count FROM flow_fcresult '
-                                            'GROUP BY SrcIP ORDER BY count DESC LIMIT 1')
-    if fc_most_attacker:
-        for i in fc_most_attacker:
-            fc_most_attacker_ip = i.SrcIP
-            fc_most_attacker_location = i.SrcLocation
-            fc = FCResult.objects.filter(SrcIP=fc_most_attacker_ip)
-            fc_count = fc.count()
-            fc_valid_count = fc.filter(FileInValidAtt=1).count()
-            # get website domain
-            dest_ip = i.DestIP
-            try:
-                website_domain = Website.objects.get(IP=dest_ip).domain
-            except Exception, error:
-                log.exception(error)
-                website_domain = ''
-            result.append({'type': '文件包含', 'src_ip': fc_most_attacker_ip, 'location': fc_most_attacker_location,
-                           'count': fc_count, 'valid_count': fc_valid_count, 'domain': website_domain})
-
-    return HttpResponse(json.dumps(result))
+# def attacker_info(request):
+#     result = []
+#
+#     sql_most_attacker = SQLInjecResult.objects.raw('SELECT *, count(*) AS count FROM flow_sqlinjecresult '
+#                                                    'GROUP BY SrcIP ORDER BY count DESC LIMIT 1')
+#     if sql_most_attacker:
+#         for i in sql_most_attacker:
+#             sql_most_attacker_ip = i.SrcIP
+#             sql_most_attacker_location = i.SrcLocation
+#             sql_inject = SQLInjecResult.objects.filter(SrcIP=sql_most_attacker_ip)
+#             sql_inject_count = sql_inject.count()
+#             sql_inject_valid_count = sql_inject.filter(SqlInjValidAtt=1).count()
+#             # get website domain
+#             dest_ip = i.DestIP
+#             try:
+#                 website_domain = Website.objects.get(IP=dest_ip).Domain
+#             except Exception, error:
+#                 log.exception(error)
+#                 website_domain = ''
+#             result.append({'type': 'Sql注入', 'src_ip': sql_most_attacker_ip, 'location': sql_most_attacker_location,
+#                            'count': sql_inject_count, 'valid_count': sql_inject_valid_count, 'domain': website_domain})
+#
+#     xss_most_attacker = XSSResult.objects.raw('SELECT *, count(*) AS count FROM flow_xssresult '
+#                                               'GROUP BY SrcIP ORDER BY count DESC LIMIT 1')
+#     if xss_most_attacker:
+#         for i in xss_most_attacker:
+#             xss_most_attacker_ip = i.SrcIP
+#             xss_most_attacker_location = i.SrcLocation
+#             xss = XSSResult.objects.filter(SrcIP=xss_most_attacker_ip)
+#             xss_count = xss.count()
+#             xss_valid_count = xss.filter(XssValidAtt=1).count()
+#             # get website domain
+#             dest_ip = i.DestIP
+#             try:
+#                 website_domain = Website.objects.get(IP=dest_ip).Domain
+#             except Exception, error:
+#                 log.exception(error)
+#                 website_domain = ''
+#             result.append({'type': 'XSS', 'src_ip': xss_most_attacker_ip, 'location': xss_most_attacker_location,
+#                            'count': xss_count, 'valid_count': xss_valid_count, 'domain': website_domain})
+#
+#     web_most_attacker = WebBDResult.objects.raw('SELECT *, count(*) AS count FROM flow_webbdresult '
+#                                                 'GROUP BY SrcIP ORDER BY count DESC LIMIT 1')
+#     if web_most_attacker:
+#         for i in web_most_attacker:
+#             web_most_attacker_ip = i.SrcIP
+#             web_most_attacker_location = i.SrcLocation
+#             web = WebBDResult.objects.filter(SrcIP=web_most_attacker_ip)
+#             web_count = web.count()
+#             web_valid_count = web.filter(WebShellValidAtt=1).count()
+#             # get website domain
+#             dest_ip = i.DestIP
+#             try:
+#                 website_domain = Website.objects.get(IP=dest_ip).Domain
+#             except Exception, error:
+#                 log.exception(error)
+#                 website_domain = ''
+#             result.append({'type': 'Web后门', 'src_ip': web_most_attacker_ip, 'location': web_most_attacker_location,
+#                            'count': web_count, 'valid_count': web_valid_count, 'domain': website_domain})
+#
+#     rc_most_attacker = RCResult.objects.raw('SELECT *, count(*) AS count FROM flow_rcresult '
+#                                             'GROUP BY SrcIP ORDER BY count DESC LIMIT 1')
+#     if rc_most_attacker:
+#         for i in rc_most_attacker:
+#             rc_most_attacker_ip = i.SrcIP
+#             rc_most_attacker_location = i.SrcLocation
+#             rc = RCResult.objects.filter(SrcIP=rc_most_attacker_ip)
+#             rc_count = rc.count()
+#             rc_valid_count = rc.filter(RCE_ValidAtt=1).count()
+#             # get website domain
+#             dest_ip = i.DestIP
+#             try:
+#                 website_domain = Website.objects.get(IP=dest_ip).Domain
+#             except Exception, error:
+#                 log.exception(error)
+#                 website_domain = ''
+#             result.append({'type': '远程命令执行', 'src_ip': rc_most_attacker_ip, 'location': rc_most_attacker_location,
+#                            'count': rc_count, 'valid_count': rc_valid_count, 'domain': website_domain})
+#
+#     fc_most_attacker = FCResult.objects.raw('SELECT *, count(*) AS count FROM flow_fcresult '
+#                                             'GROUP BY SrcIP ORDER BY count DESC LIMIT 1')
+#     if fc_most_attacker:
+#         for i in fc_most_attacker:
+#             fc_most_attacker_ip = i.SrcIP
+#             fc_most_attacker_location = i.SrcLocation
+#             fc = FCResult.objects.filter(SrcIP=fc_most_attacker_ip)
+#             fc_count = fc.count()
+#             fc_valid_count = fc.filter(FileInValidAtt=1).count()
+#             # get website domain
+#             dest_ip = i.DestIP
+#             try:
+#                 website_domain = Website.objects.get(IP=dest_ip).domain
+#             except Exception, error:
+#                 log.exception(error)
+#                 website_domain = ''
+#             result.append({'type': '文件包含', 'src_ip': fc_most_attacker_ip, 'location': fc_most_attacker_location,
+#                            'count': fc_count, 'valid_count': fc_valid_count, 'domain': website_domain})
+#
+#     return HttpResponse(json.dumps(result))
 
 
 def attack_type_count(request):
     result = []
 
-    sql = SQLInjecResult.objects.all()
+    sql = Flow.objects.filter(AttType=1)
     sql_count = sql.count()
-    sql_valid_count = sql.filter(SqlInjValidAtt=1).count()
-    result.append({'type': 'Sql注入', 'color': 'green', 'count': sql_count, 'valid_count': sql_valid_count})
+    result.append({'type': 'Sql注入', 'color': 'green', 'count': sql_count})
 
-    xss = XSSResult.objects.all()
+    xss = Flow.objects.filter(AttType=2)
     xss_count = xss.count()
-    xss_valid_count = xss.filter(XssValidAtt=1).count()
-    result.append({'type': 'XSS', 'color': 'red', 'count': xss_count, 'valid_count': xss_valid_count})
+    result.append({'type': 'XSS', 'color': 'red', 'count': xss_count})
 
-    web = WebBDResult.objects.all()
+    web = Flow.objects.filter(AttType=3)
     web_count = web.count()
-    web_valid_count = web.filter(WebShellValidAtt=1).count()
-    result.append({'type': 'Web后门', 'color': 'orange', 'count': web_count, 'valid_count': web_valid_count})
+    result.append({'type': 'Web后门', 'color': 'orange', 'count': web_count})
 
-    rc = RCResult.objects.all()
+    rc = Flow.objects.filter(AttType=4)
     rc_count = rc.count()
-    rc_valid_count = rc.filter(RCE_ValidAtt=1).count()
-    result.append({'type': '远程命令执行', 'color': 'purple', 'count': rc_count, 'valid_count': rc_valid_count})
+    result.append({'type': '远程命令执行', 'color': 'purple', 'count': rc_count})
 
-    fc = FCResult.objects.all()
+    fc = Flow.objects.filter(AttType=5)
     fc_count = fc.count()
-    fc_valid_count = fc.filter(FileInValidAtt=1).count()
-    result.append({'type': '文件包含', 'color': 'deepskyblue', 'count': fc_count, 'valid_count': fc_valid_count})
+    result.append({'type': '文件包含', 'color': 'deepskyblue', 'count': fc_count})
 
     return HttpResponse(json.dumps(sorted(result, reverse=True, key=lambda s: s['count'])))
 
 
 def attack_location_count(request):
+    """
+    攻击来源
+    :param request:
+    :return:
+    """
     result = []
 
-    sql_result = []
-    sql_attack_location_count = SQLInjecResult.objects.raw('SELECT *, count(*) AS count, sum(SqlInjValidAtt) '
-                                                           'AS valid_count FROM flow_sqlinjecresult '
-                                                           'GROUP BY SrcLocation ORDER BY count DESC')
-    for i in sql_attack_location_count:
-        sql_result.append({'location': i.SrcLocation, 'count': i.count, 'valid_count': int(i.valid_count)})
+    attack_location_counts = Flow.objects.raw("""SELECT SrcGeoPos, count( * ) AS count
+                                                FROM flow_flow
+                                                GROUP BY SrcGeoPos
+                                                ORDER BY SrcGeoPos
+                                                LIMIT 5
+                                                """)
+    for i in attack_location_counts:
+        result.append({'location': i.DescGeoPos, 'count': i.count})
 
-    xss_result = []
-    xss_attack_location_count = SQLInjecResult.objects.raw('SELECT *, count(*) AS count, sum(XssValidAtt) '
-                                                           'AS valid_count FROM flow_xssresult '
-                                                           'GROUP BY SrcLocation ORDER BY count DESC')
-    for i in xss_attack_location_count:
-        xss_result.append({'location': i.SrcLocation, 'count': i.count, 'valid_count': int(i.valid_count)})
-
-    web_result = []
-    web_attack_location_count = SQLInjecResult.objects.raw('SELECT *, count(*) AS count, sum(WebShellValidAtt) '
-                                                           'AS valid_count FROM flow_webbdresult '
-                                                           'GROUP BY SrcLocation ORDER BY count DESC')
-    for i in web_attack_location_count:
-        # web_result.append({'location': i.SrcLocation, 'count': i.count, 'valid_count': int(i.valid_count)})
-        web_result.append({'location': i.SrcLocation, 'count': i.count, 'valid_count': 0})
-
-    rc_result = []
-    rc_attack_location_count = SQLInjecResult.objects.raw('SELECT *, count(*) AS count, sum(RCE_ValidAtt) '
-                                                          'AS valid_count FROM flow_rcresult '
-                                                          'GROUP BY SrcLocation ORDER BY count DESC')
-    for i in rc_attack_location_count:
-        # rc_result.append({'location': i.SrcLocation, 'count': i.count, 'valid_count': int(i.valid_count)})
-        rc_result.append({'location': i.SrcLocation, 'count': i.count, 'valid_count': 0})
-
-    fc_result = []
-    fc_attack_location_count = SQLInjecResult.objects.raw('SELECT *, count(*) AS count, sum(FileInValidAtt) '
-                                                          'AS valid_count FROM flow_fcresult '
-                                                          'GROUP BY SrcLocation ORDER BY count DESC')
-    for i in fc_attack_location_count:
-        # fc_result.append({'location': i.SrcLocation, 'count': i.count, 'valid_count': int(i.valid_count)})
-        fc_result.append({'location': i.SrcLocation, 'count': i.count, 'valid_count': 0})
-
-    result += sql_result + xss_result + web_result + rc_result + fc_result
     return HttpResponse(json.dumps(sorted(sum_list_of_list_for_same_location(result), reverse=True,
                                           key=lambda s: s['count'])))
 
 
 def attacked_location_count(request):
+    """
+    被攻击区域
+    :param request:
+    :return:
+    """
     result = []
 
-    sql_result = []
-    sql_attacked_location_count = SQLInjecResult.objects.raw('SELECT *, count(*) AS count, sum(SqlInjValidAtt) '
-                                                             'AS valid_count FROM flow_sqlinjecresult '
-                                                             'GROUP BY DestLocation ORDER BY count DESC')
-    for i in sql_attacked_location_count:
-        sql_result.append({'location': i.DestLocation, 'count': i.count, 'valid_count': int(i.valid_count)})
+    attack_location_counts = Flow.objects.raw("""SELECT DescGeoPos, count( * ) AS count
+                                                FROM flow_flow
+                                                GROUP BY DescGeoPos
+                                                ORDER BY DescGeoPos
+                                                LIMIT 5
+                                                """)
+    for i in attack_location_counts:
+        result.append({'location': i.DescGeoPos, 'count': i.count})
 
-    xss_result = []
-    xss_attacked_location_count = SQLInjecResult.objects.raw('SELECT *, count(*) AS count, sum(XssValidAtt) '
-                                                             'AS valid_count FROM flow_xssresult '
-                                                             'GROUP BY DestLocation ORDER BY count DESC')
-    for i in xss_attacked_location_count:
-        xss_result.append({'location': i.DestLocation, 'count': i.count, 'valid_count': int(i.valid_count)})
-
-    web_result = []
-    web_attacked_location_count = SQLInjecResult.objects.raw('SELECT *, count(*) AS count, sum(WebShellValidAtt) '
-                                                             'AS valid_count FROM flow_webbdresult '
-                                                             'GROUP BY DestLocation ORDER BY count DESC')
-    for i in web_attacked_location_count:
-        # web_result.append({'location': i.SrcLocation, 'count': i.count, 'valid_count': int(i.valid_count)})
-        web_result.append({'location': i.DestLocation, 'count': i.count, 'valid_count': 0})
-
-    rc_result = []
-    rc_attacked_location_count = SQLInjecResult.objects.raw('SELECT *, count(*) AS count, sum(RCE_ValidAtt) '
-                                                            'AS valid_count FROM flow_rcresult '
-                                                            'GROUP BY DestLocation ORDER BY count DESC')
-    for i in rc_attacked_location_count:
-        # rc_result.append({'location': i.SrcLocation, 'count': i.count, 'valid_count': int(i.valid_count)})
-        rc_result.append({'location': i.DestLocation, 'count': i.count, 'valid_count': 0})
-
-    fc_result = []
-    fc_attacked_location_count = SQLInjecResult.objects.raw('SELECT *, count(*) AS count, sum(FileInValidAtt) '
-                                                            'AS valid_count FROM flow_fcresult '
-                                                            'GROUP BY DestLocation ORDER BY count DESC')
-    for i in fc_attacked_location_count:
-        # fc_result.append({'location': i.SrcLocation, 'count': i.count, 'valid_count': int(i.valid_count)})
-        fc_result.append({'location': i.DestLocation, 'count': i.count, 'valid_count': 0})
-
-    result += sql_result + xss_result + web_result + rc_result + fc_result
     return HttpResponse(json.dumps(sorted(sum_list_of_list_for_same_location(result), reverse=True,
                                           key=lambda s: s['count'])))
 
@@ -332,95 +256,65 @@ def report(request):
 REPORT_OBJECT_LIST = ['img.bitscn.com', 'client04.pdl.wow.battlenet.com.cn']
 
 
+@csrf_exempt
 def report_info(request):
     result = []
-    for i in REPORT_OBJECT_LIST:
-        domain = i
-        obj = Website.objects.get(Domain=domain)
-        ip = obj.IP
-        os = obj.OS
-        location = obj.GEO
-        report_obj = WebSiteReport.objects.get(WebsiteID_id=obj.pk)
-        score = report_obj.Score
-        risk_rank = report_obj.RiskRank
+    ip_or_url = request.POST.get('ip_or_url')
 
-        # get single report object's attack info list
+    obj = Website.objects.filter(Domain=ip_or_url)
+    domain = ip_or_url
+    if not obj:
+        obj = Website.objects.filter(IP=ip_or_url)
+        if obj:
+            domain = obj.first().Domain
+        else:
+            return HttpResponse(json.dumps({'result': 'Fail'}))
+    ip = obj.first().IP
+    os = obj.first().OS
+    location = obj.first().GEO
+    report_obj = WebSiteReport.objects.get(WebsiteID_id=obj.first().pk)
+    score = report_obj.Score
+    risk_rank = report_obj.RiskRank
 
-        attack_info_list = []
+    # get single report object's attack info list
 
-        sql_attack = SQLInjecResult.objects.filter(DestIP=ip)
-        sql_attack_count = sql_attack.count()
-        sql_attack_valid_count = sql_attack.filter(SqlInjValidAtt=1).count()
-        attack_info_list.append({'type': 'Sql注入', 'count': sql_attack_count, 'valid_count': sql_attack_valid_count})
+    attack_info_list = []
 
-        xss_attack = XSSResult.objects.filter(DestIP=ip)
-        xss_attack_count = xss_attack.count()
-        xss_attack_valid_count = xss_attack.filter(XssValidAtt=1).count()
-        attack_info_list.append({'type': 'XSS', 'count': xss_attack_count, 'valid_count': xss_attack_valid_count})
+    sql_attack = Flow.objects.filter(DescIP=ip, AttType=1)
+    sql_attack_count = sql_attack.count()
+    attack_info_list.append({'type': 'Sql注入', 'count': sql_attack_count})
 
-        web_attack = WebBDResult.objects.filter(DestIP=ip)
-        web_attack_count = web_attack.count()
-        web_attack_valid_count = web_attack.filter(WebShellValidAtt=1).count()
-        attack_info_list.append({'type': 'Web后门', 'count': web_attack_count, 'valid_count': web_attack_valid_count})
+    xss_attack = Flow.objects.filter(DescIP=ip, AttType=2)
+    xss_attack_count = xss_attack.count()
+    attack_info_list.append({'type': 'XSS', 'count': xss_attack_count})
 
-        rc_attack = RCResult.objects.filter(DestIP=ip)
-        rc_attack_count = rc_attack.count()
-        rc_attack_valid_count = rc_attack.filter(RCE_ValidAtt=1).count()
-        attack_info_list.append({'type': '远程命令执行', 'count': rc_attack_count, 'valid_count': rc_attack_valid_count})
+    web_attack = Flow.objects.filter(DescIP=ip, AttType=3)
+    web_attack_count = web_attack.count()
+    attack_info_list.append({'type': 'Web后门', 'count': web_attack_count})
 
-        fc_attack = FCResult.objects.filter(DestIP=ip)
-        fc_attack_count = fc_attack.count()
-        fc_attack_valid_count = fc_attack.filter(FileInValidAtt=1).count()
-        attack_info_list.append({'type': '文件包含', 'count': fc_attack_count, 'valid_count': fc_attack_valid_count})
+    rc_attack = Flow.objects.filter(DescIP=ip, AttType=4)
+    rc_attack_count = rc_attack.count()
+    attack_info_list.append({'type': '远程命令执行', 'count': rc_attack_count})
 
-        # get single report object's attacker info list
+    fc_attack = Flow.objects.filter(DescIP=ip,  AttType=5)
+    fc_attack_count = fc_attack.count()
+    attack_info_list.append({'type': '文件包含', 'count': fc_attack_count})
 
-        attacker_info_list = []
+    # get single report object's attacker info list
 
-        sql_attacker_info = SQLInjecResult.objects.raw("""SELECT *, count(*) AS count, sum(SqlInjValidAtt)
-                                                       AS valid_count FROM flow_sqlinjecresult WHERE DestIP='%s'
-                                                       GROUP BY SrcIP""" % ip)
-        for j in sql_attacker_info:
-            attacker_info_list.append({'attacker_ip': j.SrcIP, 'count': j.count, 'valid_count': int(j.valid_count),
-                                       'location': j.SrcLocation})
+    attacker_info_list = []
 
-        xss_attacker_info = XSSResult.objects.raw("""SELECT *, count(*) AS count, sum(XssValidAtt)
-                                                       AS valid_count FROM flow_xssresult WHERE DestIP='%s'
-                                                       GROUP BY SrcIP""" % ip)
-        for k in xss_attacker_info:
-            attacker_info_list.append({'attacker_ip': k.SrcIP, 'count': k.count, 'valid_count': int(k.valid_count),
-                                       'location': k.SrcLocation})
+    attacker_info = Flow.objects.raw("""SELECT *, count(*) AS count
+                                            FROM flow_flow WHERE DescIP='%s'
+                                            GROUP BY SrcIP ORDER BY count desc LIMIT 5
+                                            """ % ip)
+    for j in attacker_info:
+        attacker_info_list.append({'attacker_ip': j.SrcIP, 'count': j.count,
+                                   'location': j.SrcGeoPos if j.SrcGeoPos else '未知'})
 
-        web_attacker_info = WebBDResult.objects.raw("""SELECT *, count(*) AS count, sum(WebShellValidAtt)
-                                                       AS valid_count FROM flow_webbdresult WHERE DestIP='%s'
-                                                       GROUP BY SrcIP""" % ip)
-        for l in web_attacker_info:
-            # attacker_info_list.append({'attacker_ip': l.SrcIP, 'count': l.count, 'valid_count': int(l.valid_count),
-            # 'location': l.SrcLocation})
-            attacker_info_list.append({'attacker_ip': l.SrcIP, 'count': l.count, 'valid_count': int(0),
-                                       'location': l.SrcLocation})
-
-        rc_attacker_info = RCResult.objects.raw("""SELECT *, count(*) AS count, sum(RCE_ValidAtt)
-                                                       AS valid_count FROM flow_rcresult WHERE DestIP='%s'
-                                                       GROUP BY SrcIP""" % ip)
-        for m in rc_attacker_info:
-            # attacker_info_list.append({'attacker_ip': m.SrcIP, 'count': m.count, 'valid_count': int(m.valid_count),
-            # 'location': m.SrcLocation})
-            attacker_info_list.append({'attacker_ip': m.SrcIP, 'count': m.count, 'valid_count': int(0),
-                                       'location': m.SrcLocation})
-
-        fc_attacker_info = FCResult.objects.raw("""SELECT *, count(*) AS count, sum(FileInValidAtt)
-                                                       AS valid_count FROM flow_fcresult WHERE DestIP='%s'
-                                                       GROUP BY SrcIP""" % ip)
-        for n in fc_attacker_info:
-            # attacker_info_list.append({'attacker_ip': n.SrcIP, 'count': n.count, 'valid_count': int(n.valid_count),
-            # 'location': n.SrcLocation})
-            attacker_info_list.append({'attacker_ip': n.SrcIP, 'count': n.count, 'valid_count': int(0),
-                                       'location': n.SrcLocation})
-
-        result.append({'domain': domain, 'ip': ip, 'os': os, 'location': location, 'score': score,
-                       'risk_rank': risk_rank, 'attack_info_list': attack_info_list,
-                       'attacker_info_list': sum_list_of_list_for_same_ip(attacker_info_list)})
+    result.append({'domain': domain, 'ip': ip, 'os': os, 'location': location, 'score': score,
+                   'risk_rank': risk_rank, 'attack_info_list': attack_info_list,
+                   'attacker_info_list': attacker_info_list})
 
     return HttpResponse(json.dumps(result))
 
@@ -434,8 +328,8 @@ def flow_info(request, second):
         desc_ip_list.append(desc_ip)
         # try:
         # response = requests.get('%s%s' % ('http://int.dpool.sina.com.cn/iplookup/iplookup.php?format=json&ip=',
-        #                                            desc_ip))
-        #     response_json = response.json()
+        # desc_ip))
+        # response_json = response.json()
         #     address = response_json['province']+response_json['city']
         #     response.close()
         # except Exception, e:
@@ -444,24 +338,24 @@ def flow_info(request, second):
         #     address = '未找到该IP地址'
         # result.append({'time': str(i.UTC_Time), 'src_ip': i.SrcIP, 'desc_ip': i.DescIP, 'url': i.URL,
         #                'desc_address': address})
-    reqs = [grequests.get('%s%s' % ('http://int.dpool.sina.com.cn/iplookup/iplookup.php?format=json&ip=', desc_ip))
-            for desc_ip in desc_ip_list]
-    response = grequests.map(reqs, size=1)
+    # reqs = [grequests.get('%s%s' % ('http://int.dpool.sina.com.cn/iplookup/iplookup.php?format=json&ip=', desc_ip))
+    #         for desc_ip in desc_ip_list]
+    # response = grequests.map(reqs, size=1)
     # pool = threadpool.ThreadPool(5)
     # request = threadpool.makeRequests(hello, desc_ip_list)
     # [pool.putRequest(req) for req in request]
     # pool.wait()
 
     # requests.get('http://int.dpool.sina.com.cn/iplookup/iplookup.php?format=json&ip=50.63.222.49')
-    for i, j in zip(flows, response):
-        try:
-            desc_address = j.json()['province'] + j.json()['city']
-        except Exception, e:
-            log.error(i.DescIP)
-            log.error(e)
-            desc_address = '未找到该IP地址'
+    # for i, j in zip(flows, response):
+    #     try:
+    #         desc_address = j.json()['province'] + j.json()['city']
+    #     except Exception, e:
+    #         log.error(i.DescIP)
+    #         log.error(e)
+    #         desc_address = '未找到该IP地址'
         result.append({'time': str(i.UTC_Time), 'src_ip': i.SrcIP, 'desc_ip': i.DescIP, 'url': i.URL, 'type': i.AttType,
-                       'desc_address': desc_address})
+                       'desc_address': i.DescGeoPos})
     return HttpResponse(json.dumps(result))
 
 

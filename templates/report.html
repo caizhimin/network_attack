@@ -5,111 +5,168 @@
             float: left;
             width: 50%
         }
+
+        .form-control {
+            height: 34px;
+            padding: 6px 12px;
+            font-size: 14px;
+            line-height: 1.42857143;
+            color: #555;
+            background-color: #fff;
+            background-image: none;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+            -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+            -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+            transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+        }
+
+        .form-control:focus {
+            border-color: #66afe9;
+            outline: 0;
+            -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
+        }
+
+        .form-control::-moz-placeholder {
+            color: #999;
+            opacity: 1;
+        }
+
+        .form-control:-ms-input-placeholder {
+            color: #999;
+        }
+
+        .form-control::-webkit-input-placeholder {
+            color: #999;
+        }
     </style>
 {% endblock %}
 
 {% block content %}
     <div ng-controller="report_info">
-        <div style="width: 100%;margin: 30px 0 0 0">
-            <div class="table_title" style="width: 1200px;margin: 0 auto;font-size: 23px">监 测 报 表</div>
-            <div class="table_content" style="margin: 0 auto 0 auto;width: 1200px;font-size: 30px;text-align: center">
-                <table class="border" style="font-size: 13px;margin: 10px auto;" cellspacing="0" width="1200px">
-                    <tr style="line-height:25px;">
-                        <th style="width: 16.66%;">域名</th>
-                        <th style="width: 16.66%">IP</th>
-                        <th style="width: 16.66%">操作系统</th>
-                        <th style="width: 16.66%">所在地</th>
-                        <th style="width: 16.66%">监测结果评价(1-10)</th>
-                        <th style="width: 16.66%">风险等级(1-5)</th>
-                    </tr>
-                    <tr style="line-height:25px" ng-repeat="i in report_info">
-                        <th>||i.domain||</th>
-                        <th>||i.ip||</th>
-                        <th>||i.os||</th>
-                        <th>||i.location||</th>
-                        <th>||i.score||</th>
-                        <th>||i.risk_rank||</th>
-
-                    </tr>
-                </table>
-
-
-            </div>
-
+        <div style="width: 100%;margin: 30px 0 0 0;text-align: center">
+            <form>
+                <input id="ip_or_url_input" ng-model="ip_or_url" class="form-control" placeholder="IP或域名">
+                <button id="ip_or_url_btn" ng-click="refresh_info()" class="button"
+                        style="cursor: pointer;margin: 0 0 0 20px">查询
+                </button>
+            </form>
         </div>
 
-        <div style="width: 100%;margin: 30px 0 0 0">
-            <div style="margin: 0 auto 0 auto;width: 1200px;text-align: center">
+        <div>
+            <div style="width: 100%;margin: 30px 0 0 0">
+                <div class="table_title" style="width: 1200px;margin: 0 auto;font-size: 23px">监 测 报 表</div>
+                <div class="table_content"
+                     style="margin: 0 auto 0 auto;width: 1200px;font-size: 30px;text-align: center">
+                    <table class="border" style="font-size: 13px;margin: 10px auto;" cellspacing="0" width="1200px">
+                        <tr style="line-height:25px;">
+                            <th style="width: 16.66%;">域名</th>
+                            <th style="width: 16.66%">IP</th>
+                            <th style="width: 16.66%">所在地</th>
+                            <th style="width: 16.66%">攻击详情</th>
+                            <th style="width: 16.66%">日志详情</th>
+                            <th style="width: 16.66%">安全建议</th>
 
-                <ul class="single_domain_report" style="width: 1200px;margin: 0 auto">
-                    <li style="width: 580px;float: left;margin: 0 0 25px 0" ng-repeat="i in report_info" ng-style="set_color($index)">
+                        </tr>
+                        <tr style="line-height:25px" ng-repeat="i in report_info">
+                            <th>||i.domain||</th>
+                            <th>||i.ip||</th>
+                            <th>||i.location||</th>
+                            <th><button>显示</button></th>
+                            <th><button>显示</button></th>
+                            <th><button>显示</button></th>
 
-                        <div class="table_title" style="width: 578px;margin: 0 auto 0 auto;font-size: 15px">
-                            ||i.domain||安全概要
-                        </div>
-                        <div class="table_content"
-                             style="width: 285px;font-size: 15px;float: left">
+                        </tr>
+                    </table>
 
-                            <table class="border" style="font-size: 12px;margin: 10px auto;" cellspacing="0"
-                                   width="290px">
-                                <tr style="line-height:25px;">
-                                    <th style="width: 14.28%;">攻击类型</th>
-                                    <th style="width: 14.28%">次数</th>
-                                    <th style="width: 14.28%">有效次数</th>
 
-                                </tr>
-                                <tr style="line-height:25px" ng-repeat="j in i.attack_info_list">
-                                    <th>||j.type||</th>
-                                    <th>||j.count||</th>
-                                    <th ng-if="j.type!='Sql注入'&&j.type!='XSS'">0</th>
-                                    <th ng-if="j.type=='Sql注入'||j.type=='XSS'">||j.valid_count||</th>
-                                </tr>
+                </div>
 
-                            </table>
-                        </div>
-                        <div class="table_content"
-                             style="width: 290px;font-size: 15px;float: left;height: 170px">
-
-                            <table class="border" style="font-size: 12px;margin: 10px auto;" cellspacing="0"
-                                   width="290px">
-                                <tr style="line-height:25px;">
-
-                                    <th style="width: 14.28%">攻击者IP</th>
-                                    <th style="width: 14.28%">次数</th>
-                                    <th style="width: 14.28%">有效次数</th>
-                                    <th style="width: 14.28%">位置</th>
-
-                                </tr>
-                                <tr style="line-height:25px" ng-repeat="k in i.attacker_info_list">
-                                    <th>||k.attacker_ip||</th>
-                                    <th>||k.count||</th>
-                                    <th>||k.valid_count||</th>
-                                    <th>||k.location||</th>
-
-                                </tr>
-
-                            </table>
-                        </div>
-                    </li>
-                </ul>
             </div>
+
+            <div style="width: 100%;margin: 30px 0 0 0">
+                <div style="margin: 0 auto 0 auto;width: 1200px;text-align: center">
+
+                    <ul class="single_domain_report" style="width: 1200px;margin: 0 0 0 23%" ng-show="show">
+                        <li style="width: 580px;float: left;margin: 0 0 25px 0" ng-repeat="i in report_info"
+                            ng-style="set_color($index)">
+
+                            <div class="table_title" style="width: 578px;margin: 0 auto 0 auto;font-size: 15px">
+                                ||i.domain||安全概要
+                            </div>
+                            <div class="table_content"
+                                 style="width: 285px;font-size: 15px;float: left">
+
+                                <table class="border" style="font-size: 12px;margin: 10px auto;" cellspacing="0"
+                                       width="290px">
+                                    <tr style="line-height:25px;">
+                                        <th style="width: 14.28%;">攻击类型</th>
+                                        <th style="width: 14.28%">次数</th>
+
+                                    </tr>
+                                    <tr style="line-height:25px" ng-repeat="j in i.attack_info_list">
+                                        <th>||j.type||</th>
+                                        <th>||j.count||</th>
+                                    </tr>
+
+                                </table>
+                            </div>
+                            <div class="table_content"
+                                 style="width: 290px;font-size: 15px;float: left;height: 170px">
+
+                                <table class="border" style="font-size: 12px;margin: 10px auto;" cellspacing="0"
+                                       width="290px">
+                                    <tr style="line-height:25px;">
+
+                                        <th style="width: 14.28%">攻击者IP</th>
+                                        <th style="width: 14.28%">次数</th>
+                                        <th style="width: 14.28%">位置</th>
+
+                                    </tr>
+                                    <tr style="line-height:25px" ng-repeat="k in i.attacker_info_list">
+                                        <th>||k.attacker_ip||</th>
+                                        <th>||k.count||</th>
+                                        <th>||k.location||</th>
+
+                                    </tr>
+
+                                </table>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
         </div>
 
     </div>
-
-
 {% endblock %}
 
 {% block extra_script %}
     <script>
         app.controller('report_info', function ($scope, $http) {
-            var promise = $http({
-                method: 'GET',
-                url: '/report_info'
-            });
-            promise.success(function (data) {
-                $scope.report_info = data
-            })
+
+            $scope.refresh_info = function () {
+                $http.post('/report_info', {'ip_or_url': $scope.ip_or_url}, {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                    }
+                }).success(function (data) {
+                    if (data['result'] == 'Fail') {
+                        $scope.show = false
+                    }
+                    else {
+                        $scope.show = true
+                    }
+                    $scope.report_info = data
+
+                })
+            }
+
+
             $scope.set_color = function (index) {
                 if (index % 2 == 0) {
                     return {float: "left"}
@@ -120,5 +177,15 @@
             }
 
         })
+
+        app.config(function ($httpProvider) {
+            $httpProvider.defaults.transformRequest = function (data) {
+                if (data === undefined) {
+                    return data;
+                }
+                return $.param(data);
+            }
+        });
+
     </script>
 {% endblock %}
