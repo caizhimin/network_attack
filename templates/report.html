@@ -3,7 +3,7 @@
     <style>
         .single_domain_report {
             float: left;
-            width: 50%
+            width: 50%;
         }
 
         .form-control {
@@ -42,6 +42,32 @@
         .form-control::-webkit-input-placeholder {
             color: #999;
         }
+
+        .btn {
+            display: inline-block;
+            padding: 6px 12px;
+            margin-bottom: 0;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 1.42857143;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: middle;
+            -ms-touch-action: manipulation;
+            touch-action: manipulation;
+            cursor: pointer;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            border: #0F435E 1px solid;
+            border-radius: 4px;
+            background: #B1B1B1;
+            color: #000000;
+
+        }
+
+
     </style>
 {% endblock %}
 
@@ -71,13 +97,21 @@
                             <th style="width: 16.66%">安全建议</th>
 
                         </tr>
-                        <tr style="line-height:25px" ng-repeat="i in report_info">
-                            <th>||i.domain||</th>
-                            <th>||i.ip||</th>
-                            <th>||i.location||</th>
-                            <th><button>显示</button></th>
-                            <th><button>显示</button></th>
-                            <th><button>显示</button></th>
+                        <tr style="line-height:25px">
+                            <th>||report_info.domain||</th>
+                            <th>||report_info.ip||</th>
+                            <th>||report_info.location||</th>
+                            <th>
+                                <a class="btn" onclick="show_attack_modal()" ng-show="show">显示</a>
+                            </th>
+                            <th>
+                                <a class="btn" onclick="show_log_modal()" ng-show="show">显示</a>
+                            </th>
+                            <th>
+                                <a class="btn" onclick="show_suggest_modal()" ng-show="show">显示</a>
+
+
+                            </th>
 
                         </tr>
                     </table>
@@ -90,12 +124,12 @@
             <div style="width: 100%;margin: 30px 0 0 0">
                 <div style="margin: 0 auto 0 auto;width: 1200px;text-align: center">
 
-                    <ul class="single_domain_report" style="width: 1200px;margin: 0 0 0 23%" ng-show="show">
-                        <li style="width: 580px;float: left;margin: 0 0 25px 0" ng-repeat="i in report_info"
+                    <ul class="single_domain_report" style="width: 1200px;margin: 0 0 0 25%" ng-show="show">
+                        <li style="width: 580px;float: left;margin: 0 0 25px 0"
                             ng-style="set_color($index)">
 
                             <div class="table_title" style="width: 578px;margin: 0 auto 0 auto;font-size: 15px">
-                                ||i.domain||安全概要
+                                ||report_info.domain||安全概要
                             </div>
                             <div class="table_content"
                                  style="width: 285px;font-size: 15px;float: left">
@@ -107,7 +141,7 @@
                                         <th style="width: 14.28%">次数</th>
 
                                     </tr>
-                                    <tr style="line-height:25px" ng-repeat="j in i.attack_info_list">
+                                    <tr style="line-height:25px" ng-repeat="j in report_info.attack_info_list">
                                         <th>||j.type||</th>
                                         <th>||j.count||</th>
                                     </tr>
@@ -126,11 +160,10 @@
                                         <th style="width: 14.28%">位置</th>
 
                                     </tr>
-                                    <tr style="line-height:25px" ng-repeat="k in i.attacker_info_list">
+                                    <tr style="line-height:25px" ng-repeat="k in report_info.attacker_info_list">
                                         <th>||k.attacker_ip||</th>
                                         <th>||k.count||</th>
                                         <th>||k.location||</th>
-
                                     </tr>
 
                                 </table>
@@ -142,7 +175,39 @@
 
         </div>
 
+
+        <div id="attack_modal" style="display:none;background: rgba(9,49,80, 1)">
+            攻击详情
+        </div>
+
+        <div id="log_modal" style="display:none;background: rgba(9,49,80, 1);width: 700px;height: 650px" >
+            日志详情
+            <table>
+                <tr>
+                    <th>时间</th>
+                </tr>
+                <tr ng-repeat="i in logs">
+                    <th>||i.utc_time||</th>
+                </tr>
+            </table>
+
+            <div id="logs_pagination" style="top:620px;left: 155px;position: absolute"></div>
+
+        </div>
+
+        <div id="suggest_modal" style="display:none;background: rgba(9,49,80, 1)">
+            安全建议
+        </div>
+
+
     </div>
+
+
+
+    <!-- Link to open the modal -->
+
+
+
 {% endblock %}
 
 {% block extra_script %}
@@ -161,20 +226,33 @@
                     else {
                         $scope.show = true
                     }
+                    $('#logs_pagination').pagination({
+                        items: data['logs'].length,
+                        itemsOnPage: 30,
+                        prevText: '上一页',
+                        nextText: '下一页',
+                        cssStyle: 'dark-theme',
+                        onPageClick: function () {
+
+                            $scope.$apply(function () {  // update pagination data
+                                var current_page = $('#logs_pagination').pagination('getCurrentPage')
+                                $scope.logs = data['logs'].slice(current_page * 30 - 30, current_page * 30)
+                            })
+
+                        },
+                        onInit: function () {
+                            $scope.logs = data['logs'].slice(0, 30)
+                        }
+                    });
+
                     $scope.report_info = data
+                    {#                    var current_page = 1#}
+                    {#                    $scope.logs = data['logs'].slice(0, 5)#}
+
 
                 })
             }
 
-
-            $scope.set_color = function (index) {
-                if (index % 2 == 0) {
-                    return {float: "left"}
-                }
-                else {
-                    return {float: 'right'}
-                }
-            }
 
         })
 
@@ -187,5 +265,27 @@
             }
         });
 
+        function show_suggest_modal() {
+
+            $('#suggest_modal').modal({});
+            return false;
+
+        }
+
+        function show_attack_modal() {
+            $('#attack_modal').modal({});
+            return false;
+        }
+
+        function show_log_modal() {
+            $('#log_modal').modal({});
+            return false;
+        }
+
+
     </script>
+
+
+
+
 {% endblock %}

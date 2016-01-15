@@ -258,7 +258,6 @@ REPORT_OBJECT_LIST = ['img.bitscn.com', 'client04.pdl.wow.battlenet.com.cn']
 
 @csrf_exempt
 def report_info(request):
-    result = []
     ip_or_url = request.POST.get('ip_or_url')
 
     obj = Website.objects.filter(Domain=ip_or_url)
@@ -305,16 +304,21 @@ def report_info(request):
     attacker_info_list = []
 
     attacker_info = Flow.objects.raw("""SELECT *, count(*) AS count
-                                            FROM flow_flow WHERE DescIP='%s'
-                                            GROUP BY SrcIP ORDER BY count desc LIMIT 5
-                                            """ % ip)
+                                        FROM flow_flow WHERE DescIP='%s'
+                                        GROUP BY SrcIP ORDER BY count desc LIMIT 5
+                                     """ % ip)
     for j in attacker_info:
         attacker_info_list.append({'attacker_ip': j.SrcIP, 'count': j.count,
                                    'location': j.SrcGeoPos if j.SrcGeoPos else '未知'})
 
-    result.append({'domain': domain, 'ip': ip, 'os': os, 'location': location, 'score': score,
-                   'risk_rank': risk_rank, 'attack_info_list': attack_info_list,
-                   'attacker_info_list': attacker_info_list})
+    flows = Flow.objects.filter(DescIP=ip)
+    logs = []
+    for i in flows:
+        logs.append({'utc_time': str(i.UTC_Time)[0: 19]})
+
+    result = {'domain': domain, 'ip': ip, 'os': os, 'location': location, 'score': score,
+              'risk_rank': risk_rank, 'attack_info_list': attack_info_list,
+              'attacker_info_list': attacker_info_list, 'logs': logs}
 
     return HttpResponse(json.dumps(result))
 
