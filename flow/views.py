@@ -312,13 +312,17 @@ def report_info(request):
                                    'location': j.SrcGeoPos if j.SrcGeoPos else '未知'})
 
     flows = Flow.objects.filter(DescIP=ip)
-    logs = []
+    logs = []  # 日志详情
     for i in flows:
         logs.append({'utc_time': str(i.UTC_Time)[0: 19]})
 
+    attack_infos = []  # 攻击详情
+    for i in flows.exclude(AttType=0):
+        attack_infos.append({'utc_time': str(i.UTC_Time)[0: 19]})
+
     result = {'domain': domain, 'ip': ip, 'os': os, 'location': location, 'score': score,
               'risk_rank': risk_rank, 'attack_info_list': attack_info_list,
-              'attacker_info_list': attacker_info_list, 'logs': logs}
+              'attacker_info_list': attacker_info_list, 'logs': logs, 'attack_infos': attack_infos}
 
     return HttpResponse(json.dumps(result))
 

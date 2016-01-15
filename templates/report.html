@@ -176,8 +176,18 @@
         </div>
 
 
-        <div id="attack_modal" style="display:none;background: rgba(9,49,80, 1)">
+        <div id="attack_modal" style="display:none;background: rgba(9,49,80, 1);width: 700px;height: 650px">
             攻击详情
+            <table>
+                <tr>
+                    <th>时间</th>
+                </tr>
+                <tr ng-repeat="i in attack_infos">
+                    <th>||i.utc_time||</th>
+                </tr>
+            </table>
+            <div id="attack_pagination" style="top:620px;left: 155px;position: absolute"></div>
+
         </div>
 
         <div id="log_modal" style="display:none;background: rgba(9,49,80, 1);width: 700px;height: 650px" >
@@ -226,6 +236,7 @@
                     else {
                         $scope.show = true
                     }
+                    // 日志详情分页
                     $('#logs_pagination').pagination({
                         items: data['logs'].length,
                         itemsOnPage: 30,
@@ -235,8 +246,8 @@
                         onPageClick: function () {
 
                             $scope.$apply(function () {  // update pagination data
-                                var current_page = $('#logs_pagination').pagination('getCurrentPage')
-                                $scope.logs = data['logs'].slice(current_page * 30 - 30, current_page * 30)
+                                var log_current_page = $('#logs_pagination').pagination('getCurrentPage')
+                                $scope.logs = data['logs'].slice(log_current_page * 30 - 30, log_current_page * 30)
                             })
 
                         },
@@ -244,6 +255,26 @@
                             $scope.logs = data['logs'].slice(0, 30)
                         }
                     });
+                    //攻击详情分页
+                     $('#attack_pagination').pagination({
+                        items: data['attack_infos'].length,
+                        itemsOnPage: 30,
+                        prevText: '上一页',
+                        nextText: '下一页',
+                        cssStyle: 'dark-theme',
+                        onPageClick: function () {
+
+                            $scope.$apply(function () {  // update pagination data
+                                var attack_info_current_page = $('#attack_pagination').pagination('getCurrentPage')
+                                $scope.attack_infos = data['logs'].slice(attack_info_current_page * 30 - 30, attack_info_current_page * 30)
+                            })
+
+                        },
+                        onInit: function () {
+                            $scope.attack_infos = data['attack_infos'].slice(0, 30)
+                        }
+                    });
+
 
                     $scope.report_info = data
                     {#                    var current_page = 1#}

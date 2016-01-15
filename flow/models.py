@@ -35,9 +35,9 @@ class AttTypeInfo(models.Model):
 
 class IpAddressLib(models.Model):
     StartIpSeg = models.CharField(max_length=50, null=True, blank=True, verbose_name='起始ip段地址')
-    StartIpSegNum = models.IntegerField(null=True, blank=True, verbose_name='起始ip段地址Num')
+    StartIpSegNum = models.BigIntegerField(null=True, blank=True, verbose_name='起始ip段地址Num')
     EndIpSeg = models.CharField(max_length=50, null=True, blank=True, verbose_name='结束ip段地址')
-    EndIpSegNum = models.IntegerField(null=True, blank=True, verbose_name='起始ip段地址Num')
+    EndIpSegNum = models.BigIntegerField(null=True, blank=True, verbose_name='起始ip段地址Num')
     ProvinceLocation = models.CharField(max_length=30, null=True, blank=True, verbose_name='省份')
     CityLocation = models.CharField(max_length=30, null=True, blank=True, verbose_name='城市')
 
