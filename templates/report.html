@@ -194,7 +194,7 @@
                     <th style="float: left;width: 56px;text-align: center">目的地理位置</th>
                     <th style="float: left;width: 63px;text-align: center">攻击类型</th>
                 </tr>
-                <tr ng-repeat="i in logs">
+                <tr ng-repeat="i in attack_infos">
                     <th style="float: left;width: 70px;text-align: center;margin: 0 5px 0 0">||i.utc_time||</th>
                     <th style="float: left;width: 100px;word-break:break-all;text-align: center">||i.URL||</th>
                     <th style="float: left;width: 70px;text-align: center">||i.NetProType||</th>
@@ -316,7 +316,7 @@
 
                             $scope.$apply(function () {  // update pagination data
                                 var attack_info_current_page = $('#attack_pagination').pagination('getCurrentPage')
-                                $scope.attack_infos = data['logs'].slice(attack_info_current_page * 4 - 4, attack_info_current_page * 4)
+                                $scope.attack_infos = data['attack_infos'].slice(attack_info_current_page * 4 - 4, attack_info_current_page * 4)
                             })
 
                         },

@@ -5,14 +5,11 @@
     <style>
 
 
-
-	.southsea {
-		stroke: #0F435E;
-		stroke-width: 4px;
-		fill: #0000;
-	}
-
-
+        .southsea {
+            stroke: #0F435E;
+            stroke-width: 4px;
+            fill: #0000;
+        }
 
 
     </style>
@@ -70,26 +67,27 @@
 
             <svg id="svg" style="float: left;margin: 15px 0 0 23px">
 
-                <g xmlns="http://www.w3.org/2000/svg" id="southsea" transform="translate(630,450)scale(0.5)" class="southsea">
-  <title>South China Sea</title>
-  <line id="svg_1" y2="7" x2="145" y1="7" x1="20"></line>
-  <line id="svg_2" y2="24" x2="6" y1="7" x1="20"></line>
-  <line id="svg_3" y2="195" x2="145" y1="7" x1="145"></line>
-  <line id="svg_4" y2="195" x2="6" y1="24" x1="6"></line>
-  <line id="svg_5" y2="195" x2="145" y1="195" x1="6"></line>
-  <path id="svg_6" d="m6,31.5l9,7.5l15,9l15,4l18,0l17,-14l21,-31L20,7L6,24z"></path>
-  <path id="svg_7" d="m113,7l10,25l11,-25z"></path>
-  <path id="svg_9" d="m46.5,66.5l14.5,-6.5l-1,13l-7,7l-15,4l8.5,-17.5z"></path>
-  <line id="svg_10" y2="46.5" x2="132.5" y1="31.5" x1="141.5"></line>
-  <line id="svg_11" y2="76.5" x2="115.5" y1="61.5" x1="121.5"></line>
-  <line id="svg_12" y2="111.5" x2="110.5" y1="92.5" x1="110.5"></line>
-  <line id="svg_13" y2="147.5" x2="101.5" y1="127.5" x1="108.5"></line>
-  <line id="svg_14" y2="177.5" x2="78.5" y1="163.5" x1="91.5"></line>
-  <line id="svg_15" y2="188.5" x2="39.5" y1="184.5" x1="54.5"></line>
-  <line id="svg_16" y2="158.5" x2="11.5" y1="172.5" x1="17.5"></line>
-  <line id="svg_17" y2="132.5" x2="39.5" y1="142.5" x1="24.5"></line>
-  <line id="svg_18" y2="98.5" x2="37.5" y1="113.5" x1="40.5"></line>
- </g>
+                <g xmlns="http://www.w3.org/2000/svg" id="southsea" transform="translate(630,450)scale(0.5)"
+                   class="southsea">
+                    <title>South China Sea</title>
+                    <line id="svg_1" y2="7" x2="145" y1="7" x1="20"></line>
+                    <line id="svg_2" y2="24" x2="6" y1="7" x1="20"></line>
+                    <line id="svg_3" y2="195" x2="145" y1="7" x1="145"></line>
+                    <line id="svg_4" y2="195" x2="6" y1="24" x1="6"></line>
+                    <line id="svg_5" y2="195" x2="145" y1="195" x1="6"></line>
+                    <path id="svg_6" d="m6,31.5l9,7.5l15,9l15,4l18,0l17,-14l21,-31L20,7L6,24z"></path>
+                    <path id="svg_7" d="m113,7l10,25l11,-25z"></path>
+                    <path id="svg_9" d="m46.5,66.5l14.5,-6.5l-1,13l-7,7l-15,4l8.5,-17.5z"></path>
+                    <line id="svg_10" y2="46.5" x2="132.5" y1="31.5" x1="141.5"></line>
+                    <line id="svg_11" y2="76.5" x2="115.5" y1="61.5" x1="121.5"></line>
+                    <line id="svg_12" y2="111.5" x2="110.5" y1="92.5" x1="110.5"></line>
+                    <line id="svg_13" y2="147.5" x2="101.5" y1="127.5" x1="108.5"></line>
+                    <line id="svg_14" y2="177.5" x2="78.5" y1="163.5" x1="91.5"></line>
+                    <line id="svg_15" y2="188.5" x2="39.5" y1="184.5" x1="54.5"></line>
+                    <line id="svg_16" y2="158.5" x2="11.5" y1="172.5" x1="17.5"></line>
+                    <line id="svg_17" y2="132.5" x2="39.5" y1="142.5" x1="24.5"></line>
+                    <line id="svg_18" y2="98.5" x2="37.5" y1="113.5" x1="40.5"></line>
+                </g>
 
             </svg>
             <!--大公鸡-->
@@ -166,7 +164,7 @@
                                 <th>||i.src_ip||</th>
                                 <th>||i.desc_ip||</th>
                                 <th>||i.url||</th>
-                                <th>||i.desc_address||</th>
+                                <th>||i.DescGeoPos||</th>
                                 <th ng-if="i.type==1">Sql注入</th>
                                 <th ng-if="i.type==2">XSS</th>
                                 <th ng-if="i.type==3">Web后门</th>
@@ -208,6 +206,98 @@
         })
 
         app.controller('flow_info', function ($scope, $http) {
+            //城市经纬度信息
+            var city_coordinate = {
+                '上海': [121.48, 31.22], '北京': [116.5, 40], '西安': [108.9, 34.3],
+                '成都': [104.1, 30.6], '乌鲁木齐':[87.7, 43.8], '台北': [121.3, 25.0], '广州': [113.2,23.2],
+                '天津': [117.2, 39.1], '香港': [114.1, 22.2], '深圳': [114.1, 22.6], '杭州': [120.2, 30.3],
+                '重庆': [106.5, 29.6], '青岛': [120.3, 36.0], '厦门': [118.1, 24.5], '福州': [119.3, 26.1],
+                '兰州': [103.7, 36.0], '南京':[118.8, 32.0], '沈阳':[123.4, 41.8], '太原': [112.5, 41.8],
+                '拉萨': [91.0, 29.6], '昆明': [102.7, 25.1], '武汉': [114.3, 30.5], '郑州': [113.7, 34.5],
+                '三亚': [109.5, 18.2]
+            };
+
+
+            //画布大小
+            var width = 750;
+            var height = 570;
+
+            //在 body 里添加一个 SVG 画布
+            var svg = d3.select("#svg")
+                    .attr("width", width)
+                    .attr("height", height)
+                    .append('g')
+                    .attr('transform', 'translate(30, 100)')
+
+            var color = d3.scale.category20();   //有十种颜色的颜色比例尺
+
+            //投影函数
+            var projection = d3.geo.mercator()  //墨卡托投影
+                    .center([107, 31])  //center() 设定地图的中心位置，[107,31] 指的是经度和纬度。
+                    .scale(695) //scale() 设定放大的比例。
+                    .translate([width / 2, height / 2]) //translate() 设定平移。
+
+            var path = d3.geo.path()  //地理路径生成器。
+                    .projection(projection);
+
+
+            var defs = svg.append("defs");
+
+            var arrowMarker = defs.append("marker")
+                    .attr("id", "arrow")
+                    .attr("markerUnits", "strokeWidth")
+                    .attr("markerWidth", "12")
+                    .attr("markerHeight", "12")
+                    .attr("viewBox", "0 0 12 12")
+                    .attr("refX", "6")
+                    .attr("refY", "6")
+                    .attr("orient", "auto");
+
+            var arrow_path = "M2,2 L10,6 L2,10 L6,6 L2,2";
+
+            arrowMarker.append("path")
+                    .attr("d", arrow_path)
+                    .attr("fill", "red")
+
+
+            d3.json('/canvas/json', function (error, root) {
+                if (error)
+                    return console.error(error)
+                console.log(root.features)
+                svg.selectAll('path')
+                        .data(root.features)
+                        .enter()
+                        .append('path')
+                        .attr('stroke', '#0F435E')
+                        .attr('stroke-width', 2)
+                        {#                .attr('fill', function (d, i) {#}
+                        {#                    return color(i)#}
+                        {#                })#}
+                        .attr('fill', 'black')
+                        .attr('d', path)
+                //上面这个相当于:
+                //.attr("d",funtion(d){
+                //  return path(d);
+                //})
+
+            })
+
+            //获取范围内的随机数
+            function random(min, max) {
+
+                return Math.floor(min + Math.random() * (max - min));
+
+            }
+
+
+            var colorList = ['green', 'red', 'orange', 'purple', 'deepskyblue']
+
+            function getColorByRandom(colorList) {
+                var colorIndex = Math.floor(Math.random() * colorList.length);
+                var color = colorList[colorIndex];
+                return color;
+            }
+
 
             var currentIndex = 0;
 
@@ -227,12 +317,69 @@
                     $scope.flow_info = data
                     setTimeout(newRequest, 1500)
                     currentIndex++
+
+                    console.log(data[0])
+                    var start_city_coordinate = projection(city_coordinate[data[0]['SrcGeoPos']])//投影映射计算
+                    var end_city_coordinate = projection(city_coordinate[data[0]['DescGeoPos']]) //投影映射计算
+                    console.log(start_city_coordinate)
+                    var x1 = start_city_coordinate[0]
+                    var y1 = start_city_coordinate[1]
+                    var x2 = end_city_coordinate[0]
+                    var y2 = end_city_coordinate[1]
                     {#                    if( $scope.flow_info.length<6){#}
                     {#                        stop=true#}
                     {#                    }#}
+
+                    svg.append('circle')
+                            .attr({
+                                cx: x1,
+                                cy: y1,
+                                fill: "none",
+                                "stroke-width": 4,
+                                r: 2
+                            })
+                            .attr('stroke', getColorByRandom(colorList))
+                            .style("stroke-opacity", 1).
+                            transition().duration(4000).
+                            ease("cubic-out").
+                            style("stroke-opacity", 0).
+                            attr("r", 80).remove()
+
+
+                    var line = svg.append("line")
+                            .attr("x1", x1)
+                            .attr("y1", y1)
+                            .attr("x2", x1)
+                            .attr("y2", y1)
+                            .attr("stroke", "red")
+                            .attr("stroke-width", 2)
+                            .attr('class', 'line')
+                            .attr("marker-end", "url(#arrow)")
+                        // 开始线段
+                            .transition()
+                            .duration('800')
+                            .ease('linear')
+                            .attr('x2', x1 + 0.4 * (x2 - x1))  //x1+比例*(x2-x1)
+                            .attr('y2', y1 + 0.4 * (y2 - y1))    //y1+比例*(y2-y1)
+                        //  位移
+                            .transition()
+                            .duration('1000')
+                            .ease('linear')
+                            .attr('x1', x2 - 0.4 * (x2 - x1))
+                            .attr('y1', y2 - 0.4 * (y2 - y1))
+                            .attr('x2', x2)
+                            .attr('y2', y2)
+                        // 结束线段
+                            .transition()
+                            .duration('800')
+                            .ease('linear')
+                            .attr('x1', x2)
+                            .attr('y1', y2)
+                            .each('end', function () {
+                                line.transition()
+                                        .attr('marker-end', '')
+                            });
                 })
-
-
             }
 
             newRequest()
@@ -273,191 +420,6 @@
         })
 
 
-        //画布大小
-        var width = 750;
-        var height = 570;
-
-        //在 body 里添加一个 SVG 画布
-        var svg = d3.select("#svg")
-                .attr("width", width)
-                .attr("height", height)
-                .append('g')
-                .attr('transform', 'translate(30, 100)')
-
-        var color = d3.scale.category20();   //有十种颜色的颜色比例尺
-
-        //投影函数
-        var projection = d3.geo.mercator()  //墨卡托投影
-                .center([107, 31])  //center() 设定地图的中心位置，[107,31] 指的是经度和纬度。
-                .scale(695) //scale() 设定放大的比例。
-                .translate([width / 2, height / 2]) //translate() 设定平移。
-
-        var path = d3.geo.path()  //地理路径生成器。
-                .projection(projection);
-
-        var defs = svg.append("defs");
-
-        var arrowMarker = defs.append("marker")
-                .attr("id", "arrow")
-                .attr("markerUnits", "strokeWidth")
-                .attr("markerWidth", "12")
-                .attr("markerHeight", "12")
-                .attr("viewBox", "0 0 12 12")
-                .attr("refX", "6")
-                .attr("refY", "6")
-                .attr("orient", "auto");
-
-        var arrow_path = "M0,6 L10,2 L5,6 L10,10 L0,6";
-
-        arrowMarker.append("path")
-                .attr("d", arrow_path)
-                .attr("fill", "red");
-
-
-        d3.json('/canvas/json', function (error, root) {
-            if (error)
-                return console.error(error)
-            console.log(root.features)
-            svg.selectAll('path')
-                    .data(root.features)
-                    .enter()
-                    .append('path')
-                    .attr('stroke', '#0F435E')
-                    .attr('stroke-width', 2)
-                    {#                .attr('fill', function (d, i) {#}
-                    {#                    return color(i)#}
-                    {#                })#}
-                    .attr('fill', 'black')
-                    .attr('d', path)
-            //上面这个相当于:
-            //.attr("d",funtion(d){
-            //  return path(d);
-            //})
-
-        })
-
-        //获取范围内的随机数
-        function random(min, max) {
-
-            return Math.floor(min + Math.random() * (max - min));
-
-        }
-
-
-        var colorList = ['green', 'red', 'orange', 'purple', 'deepskyblue']
-
-        function getColorByRandom(colorList) {
-            var colorIndex = Math.floor(Math.random() * colorList.length);
-            var color = colorList[colorIndex];
-            return color;
-        }
-
-        var city_coordinate = [{'city_name': '上海', 'x': 559, 'y': 282},
-            {'city_name': '北京', 'x': 490, 'y': 150}, {'city_name': '台北', 'x': 550, 'y': 364},
-            {'city_name': '重庆', 'x': 350, 'y': 300}, {'city_name': '广州', 'x': 450, 'y': 398},
-            {'city_name': '西安', 'x': 403, 'y': 230}
-        ]
-
-
-        function shanghai() {
-            svg.append('circle')
-                    .attr({
-                        cx: city_coordinate[0]['x'],
-                        cy: city_coordinate[0]['y'],
-                        fill: "none",
-                        "stroke-width": 4,
-                        r: 2
-                    })
-                    .attr('stroke', getColorByRandom(colorList))
-                    .style("stroke-opacity", 1).
-                    transition().duration(4000).
-                    ease("cubic-out").
-                    style("stroke-opacity", 0).
-                    attr("r", 80).remove()
-        }
-
-        function beijing() {
-            svg.append('circle')
-                    .attr({
-                        cx: city_coordinate[1]['x'],
-                        cy: city_coordinate[1]['y'],
-                        fill: "none",
-                        "stroke-width": 4,
-                        r: 2
-                    })
-                    .attr('stroke', getColorByRandom(colorList))
-                    .style("stroke-opacity", 1).
-                    transition().duration(4000).
-                    ease("cubic-out").
-                    style("stroke-opacity", 0).
-                    attr("r", 80).remove()
-
-
-            var line = svg.append("line")
-                    .attr("x1", 490)
-                    .attr("y1", 150)
-                    .attr("x2", 490)
-                    .attr("y2", 150)
-                    .attr("stroke", "red")
-                    .attr("stroke-width", 2)
-                    .attr('class', 'line')
-                    .attr("marker-start", "url(#arrow)")
-                // 开始线段
-                    .transition()
-                    .duration('1000')
-                    .ease('linear')
-                    .attr('x1', 490 + 24)
-                    .attr('y1', 150 + 85.6)
-                //  位移
-                    .transition()
-                    .duration('1000')
-                    .ease('linear')
-                    .attr('x1', 550)
-                    .attr('y1', 364)
-                    .attr('x2', 550 - 24)
-                    .attr('y2', 364 - 85.6)
-                // 结束线段
-                    .transition()
-                    .duration('1000')
-                    .ease('linear')
-                    .attr('x2', 550)
-                    .attr('y2', 364)
-                    .each('end', function () {
-                        line.transition()
-                                .attr('marker-start', '')
-                        taibei()
-                    });
-
-
-            {#                        .attr('x1', 550-24)#}
-            {#                        .attr('y1', 364-85.6)#}
-            {#                        .attr('x2', 550)#}
-            {#                        .attr('y2', 364)#}
-            {#                        .remove()#}
-            {#            .each('end',function(){#}
-            {#          taibei()#}
-            {#      });#}
-        }
-
-
-        function taibei() {
-            svg.append('circle')
-                    .attr({
-                        cx: city_coordinate[2]['x'],
-                        cy: city_coordinate[2]['y'],
-                        fill: "none",
-                        "stroke-width": 4,
-                        r: 2
-                    })
-                    .attr('stroke', getColorByRandom(colorList))
-                    .style("stroke-opacity", 1).
-                    transition().duration(4000).
-                    ease("cubic-out").
-                    style("stroke-opacity", 0).
-                    attr("r", 80).remove()
-
-        }
-
         function chongqing() {
             svg.append('circle')
                     .attr({
@@ -475,43 +437,6 @@
                     attr("r", 80).remove()
         }
 
-        function guangzhou() {
-            svg.append('circle')
-                    .attr({
-                        cx: city_coordinate[4]['x'],
-                        cy: city_coordinate[4]['y'],
-                        fill: "none",
-                        "stroke-width": 4,
-                        r: 2
-                    })
-                    .attr('stroke', getColorByRandom(colorList))
-
-                    .style("stroke-opacity", 1).
-                    transition().duration(4000).
-                    ease("cubic-out").
-                    style("stroke-opacity", 0).
-                    attr("r", 80).remove()
-        }
-
-        function xian() {
-            svg.append('circle')
-                    .attr({
-                        cx: city_coordinate[5]['x'],
-                        cy: city_coordinate[5]['y'],
-                        fill: "none",
-                        "stroke-width": 4,
-                        r: 2
-                    })
-                    .attr('stroke', getColorByRandom(colorList))
-
-                    .style("stroke-opacity", 1).
-                    transition().duration(4000).
-                    ease("cubic-out").
-                    style("stroke-opacity", 0).
-                    attr("r", 80).remove()
-
-
-        }
 
         {#        (function loop() {#}
         {#            var rand1 = random(1000, 5000);#}
@@ -522,14 +447,14 @@
         {#            }, rand1);#}
         {#        }());#}
 
-        (function loop() {
-            var rand2 = random(1000, 5000);
-            setTimeout(function () {
-                beijing();
-
-                loop();
-            }, rand2);
-        }());
+        {#        (function loop() {#}
+        {#            var rand2 = random(1000, 5000);#}
+        {#            setTimeout(function () {#}
+        {#                beijing();#}
+        {##}
+        {#                loop();#}
+        {#            }, rand2);#}
+        {#        }());#}
 
         {#        (function loop() {#}
         {#            var rand2 = random(1500, 7000);#}

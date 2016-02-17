@@ -18,11 +18,9 @@ def sum_list_of_list_for_same_location(dict_list):
     for dict_item in dict_list:
         location = dict_item['location']
         count = dict_item['count']
-        valid_count = dict_item['valid_count']
         if location in name_dict:
             pos = name_dict[location]
-            result_list[pos] = {'location': location, 'count': (result_list[pos]['count'] + count),
-                                'valid_count': (result_list[pos]['valid_count'] + valid_count)}
+            result_list[pos] = {'location': location, 'count': (result_list[pos]['count'] + count)}
         else:
             result_list.append(dict_item)
             name_dict[location] = len(result_list) - 1
@@ -215,7 +213,7 @@ def attack_location_count(request):
     """
     result = []
 
-    attack_location_counts = Flow.objects.raw("""SELECT SrcGeoPos, count( * ) AS count
+    attack_location_counts = Flow.objects.raw("""SELECT *, count( * ) AS count
                                                 FROM flow_flow
                                                 GROUP BY SrcGeoPos
                                                 ORDER BY SrcGeoPos
@@ -236,7 +234,7 @@ def attacked_location_count(request):
     """
     result = []
 
-    attack_location_counts = Flow.objects.raw("""SELECT DescGeoPos, count( * ) AS count
+    attack_location_counts = Flow.objects.raw("""SELECT *, count( * ) AS count
                                                 FROM flow_flow
                                                 GROUP BY DescGeoPos
                                                 ORDER BY DescGeoPos
@@ -374,7 +372,7 @@ def flow_info(request, second):
     #         log.error(e)
     #         desc_address = '未找到该IP地址'
         result.append({'time': str(i.UTC_Time), 'src_ip': i.SrcIP, 'desc_ip': i.DescIP, 'url': i.URL, 'type': i.AttType,
-                       'desc_address': i.DescGeoPos})
+                       'DescGeoPos': i.DescGeoPos, 'SrcGeoPos': i.SrcGeoPos})
     return HttpResponse(json.dumps(result))
 
 
