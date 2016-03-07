@@ -220,7 +220,7 @@ def attack_location_count(request):
                                                 LIMIT 5
                                                 """)
     for i in attack_location_counts:
-        result.append({'location': i.DescGeoPos, 'count': i.count})
+        result.append({'location': i.SrcGeoPos, 'count': i.count})
 
     return HttpResponse(json.dumps(sorted(sum_list_of_list_for_same_location(result), reverse=True,
                                           key=lambda s: s['count'])))
@@ -241,7 +241,7 @@ def attacked_location_count(request):
                                                 LIMIT 5
                                                 """)
     for i in attack_location_counts:
-        result.append({'location': i.DescGeoPos, 'count': i.count})
+        result.append({'location': i.DescGeoPos if i.DescGeoPos else '未知', 'count': i.count})
 
     return HttpResponse(json.dumps(sorted(sum_list_of_list_for_same_location(result), reverse=True,
                                           key=lambda s: s['count'])))
@@ -258,20 +258,25 @@ REPORT_OBJECT_LIST = ['img.bitscn.com', 'client04.pdl.wow.battlenet.com.cn']
 def report_info(request):
     ip_or_url = request.POST.get('ip_or_url')
 
-    obj = Website.objects.filter(Domain=ip_or_url)
+    obj = Flow.objects.filter(URL=ip_or_url)
+
     domain = ip_or_url
     if not obj:
-        obj = Website.objects.filter(IP=ip_or_url)
+        obj = Flow.objects.filter(DescIP=ip_or_url)
         if obj:
-            domain = obj.first().Domain
+            domain = obj.first().URL
         else:
+            print('fail')
             return HttpResponse(json.dumps({'result': 'Fail'}))
-    ip = obj.first().IP
-    os = obj.first().OS
-    location = obj.first().GEO
-    report_obj = WebSiteReport.objects.get(WebsiteID_id=obj.first().pk)
-    score = report_obj.Score
-    risk_rank = report_obj.RiskRank
+    # if not obj:
+    #     obj = Flow.objects.filter(DescIP=ip_or_url)
+
+    ip = obj.first().DescIP
+    # os = obj.first().OS
+    location = obj.first().SrcGeoPos
+    # report_obj = WebSiteReport.objects.get(WebsiteID_id=obj.first().pk)
+    # score = report_obj.Score
+    # risk_rank = report_obj.RiskRank
 
     # get single report object's attack info list
 
@@ -311,7 +316,7 @@ def report_info(request):
 
     flows = Flow.objects.filter(DescIP=ip)
     logs = []  # 日志详情
-    attack_type_dict = {1: 'Sql注入', 2: 'XSS', 3: 'Web后门', 4: '远程命令执行', 5: '文件包含'}
+    attack_type_dict = {1: 'Sql注入', 2: 'XSS', 3: 'Web后门', 4: '远程命令执行', 5: '文件包含', 0: '正常'}
     for i in flows:
         logs.append({'utc_time': str(i.UTC_Time)[0: 19], 'URL': i.URL, 'NetProType': i.NetProType,
                      'MesHeader': i.MesHeader, 'MesBody': i.MesBody, 'ResponseCode': i.ResponseCode,
@@ -329,15 +334,14 @@ def report_info(request):
                              'DescPort': i.DescPort, 'DescGeoPos': i.DescGeoPos if i.DescGeoPos else '未知',
                              'AttType': attack_type_dict.get(i.AttType, '未知')})
 
-    result = {'domain': domain, 'ip': ip, 'os': os, 'location': location, 'score': score,
-              'risk_rank': risk_rank, 'attack_info_list': attack_info_list,
+    result = {'domain': domain, 'ip': ip, 'location': location, 'attack_info_list': attack_info_list,
               'attacker_info_list': attacker_info_list, 'logs': logs, 'attack_infos': attack_infos}
 
     return HttpResponse(json.dumps(result))
 
 
 def flow_info(request, second):
-    flows = Flow.objects.all()[int(second): 10 + int(second)]
+    flows = Flow.objects.all().order_by('UTC_Time')[int(second): 10 + int(second)]
     result = []
     desc_ip_list = []
     for i in flows:
@@ -373,6 +377,30 @@ def flow_info(request, second):
     #         desc_address = '未找到该IP地址'
         result.append({'time': str(i.UTC_Time), 'src_ip': i.SrcIP, 'desc_ip': i.DescIP, 'url': i.URL, 'type': i.AttType,
                        'DescGeoPos': i.DescGeoPos, 'SrcGeoPos': i.SrcGeoPos})
+    return HttpResponse(json.dumps(result))
+
+
+@csrf_exempt
+def attack_flow(request):
+    attack_location = request.POST.get('attack_location')
+    attacked_location = request.POST.get('attacked_location')
+    _type = request.POST.get('type')
+    result = []
+    attack_type_dict = {1: 'Sql注入', 2: 'XSS', 3: 'Web后门', 4: '远程命令执行', 5: '文件包含', 0: '正常'}
+    if attack_location:
+        flows = Flow.objects.filter(SrcGeoPos=attack_location)
+    if attacked_location:
+        flows = Flow.objects.filter(DescGeoPos=attacked_location)
+    if _type:
+        flows = Flow.objects.filter(AttType=int(_type))
+    for i in flows:
+        result.append({'utc_time': str(i.UTC_Time)[0: 19], 'URL': i.URL, 'NetProType': i.NetProType,
+                       'MesHeader': i.MesHeader, 'MesBody': i.MesBody, 'ResponseCode': i.ResponseCode,
+                       'ResponseBody': i.ResponseBody, 'SrcIP': i.SrcIP, 'SrcPort': i.SrcPort,
+                       'SrcGeoPos': i.SrcGeoPos if i.SrcGeoPos else '未知', 'DescIP': i.DescIP,
+                       'DescPort': i.DescPort, 'DescGeoPos': i.DescGeoPos if i.DescGeoPos else '未知',
+                       'AttType': attack_type_dict.get(i.AttType, '未知')})
+
     return HttpResponse(json.dumps(result))
 
 

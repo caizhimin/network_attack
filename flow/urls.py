@@ -11,4 +11,5 @@ urlpatterns = [url(r'^index/$', views.index, name='index'),
                url(r'^attack_location_count$', views.attack_location_count, name='attack_location_count'),
                url(r'^attacked_location_count$', views.attacked_location_count, name='attacked_location_count'),
                url(r'^flow_info/(?P<second>\d+)$', views.flow_info, name='flow_info'),
-               url(r'^report_info$', views.report_info, name='report_info')]
+               url(r'^report_info$', views.report_info, name='report_info'),
+               url(r'^attack_flow$', views.attack_flow, name='attack_flow')]

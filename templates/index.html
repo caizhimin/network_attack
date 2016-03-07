@@ -38,9 +38,47 @@
                             </tr>
                             <tr style="line-height:25px" ng-repeat="i in attack_location_count.slice(0,5)">
                                 <th>||i.location||</th>
-                                <th>||i.count||</th>
-
+                                <th style="cursor: pointer" ng-click="show_attack_modal(i.location)">||i.count||</th>
+                            </tr>
                         </table>
+                    </div>
+                    <div id="attack_modal" style="display:none;background: rgba(9,49,80, 0.5);width: 1300px;height: 680px;font-size: 13px">
+                        <table width="100%">
+                            <tr style="text-align: center;line-height: 35px;font-size: 14px">
+                                <th style="float: left;width: 70px">时间</th>
+                                <th style="float: left;width: 100px;word-break:break-all;margin-right: 6px">URL</th>
+                                <th style="float: left;width: 67px;margin-right: 13px">网络协议类型</th>
+                                <th style="float: left;width: 125px;text-align: center;margin-right: 4px">报文头</th>
+                                <th style="float: left;width: 155px;text-align: center;word-break:break-all;margin-right: -12px">报文内容</th>
+                                <th style="float: left;width: 60px;text-align: center;margin-right: -5px">响应代码</th>
+                                <th style="float: left;width: 230px;text-align: center;word-break:break-all">响应正文</th>
+                                <th style="float: left;width: 90px;text-align: center;margin-right: -17px">源IP</th>
+                                <th style="float: left;width: 90px;text-align: center;margin-right: -13px">源端口</th>
+                                <th style="float: left;width: 50px;text-align: center">源地理位置</th>
+                                <th style="float: left;width: 90px;text-align: center">目的IP</th>
+                                <th style="float: left;width: 56px;text-align: center">目的端口</th>
+                                <th style="float: left;width: 56px;text-align: center">目的地理位置</th>
+                                <th style="float: left;width: 63px;text-align: center">攻击类型</th>
+                            </tr>
+                            <tr ng-repeat="i in attack_infos">
+                                <th style="float: left;width: 70px;text-align: center;margin: 0 5px 0 0">||i.utc_time||</th>
+                                <th style="float: left;width: 100px;word-break:break-all;text-align: center">||i.URL||</th>
+                                <th style="float: left;width: 70px;text-align: center">||i.NetProType||</th>
+                                <th style="float: left;width: 155px;text-align: center;word-break:break-all">||i.MesHeader||</th>
+                                <th style="float: left;width: 125px;text-align: center;word-break:break-all">||i.MesBody||</th>
+                                <th style="float: left;width: 60px;text-align: center">||i.ResponseCode||</th>
+                                <th style="float: left;width: 230px;text-align: center;word-break:break-all">||i.ResponseBody||</th>
+                                <th style="float: left;width: 90px;text-align: center">||i.SrcIP||</th>
+                                <th style="float: left;width: 55px;text-align: center">||i.SrcPort||</th>
+                                <th style="float: left;width: 55px;text-align: center">||i.SrcGeoPos||</th>
+                                <th style="float: left;width: 90px;text-align: center">||i.DescIP||</th>
+                                <th style="float: left;width: 55px;text-align: center">||i.DescPort||</th>
+                                <th style="float: left;width: 55px;text-align: center">||i.DescGeoPos||</th>
+                                <th style="float: left;width: 64px;text-align: center">||i.AttType||</th>
+                            </tr>
+                        </table>
+                        <div id="attack_infos_pagination" style="top:650px;left: 465px;position: absolute"></div>
+
                     </div>
                 </div>
                 <!--攻击来源统计TOP5-->
@@ -52,15 +90,57 @@
                         <table style="font-size: 13px;margin: 10px auto">
                             <tr style="line-height:25px">
                                 <th style="width: 100px">来源</th>
-                                <th style="width: 100px">被攻击次数</th>
+                                <th style="width: 100px;cursor: pointer">被攻击次数</th>
                             </tr>
                             <tr style="line-height:25px" ng-repeat="i in attacked_location_count.slice(0,5)">
                                 <th>||i.location||</th>
-                                <th>||i.count||</th>
+                                <th ng-click="show_attacked_modal(i.location)" style="cursor: pointer">||i.count||</th>
 
                         </table>
                     </div>
+
+                    <div id="attacked_modal" style="display:none;background: rgba(9,49,80, 0.5);width: 1300px;height: 680px;font-size: 13px">
+                        <table width="100%">
+                            <tr style="text-align: center;line-height: 35px;font-size: 14px">
+                                <th style="float: left;width: 70px">时间</th>
+                                <th style="float: left;width: 100px;word-break:break-all;margin-right: 6px">URL</th>
+                                <th style="float: left;width: 67px;margin-right: 13px">网络协议类型</th>
+                                <th style="float: left;width: 125px;text-align: center;margin-right: 4px">报文头</th>
+                                <th style="float: left;width: 155px;text-align: center;word-break:break-all;margin-right: -12px">报文内容</th>
+                                <th style="float: left;width: 60px;text-align: center;margin-right: -5px">响应代码</th>
+                                <th style="float: left;width: 230px;text-align: center;word-break:break-all">响应正文</th>
+                                <th style="float: left;width: 90px;text-align: center;margin-right: -17px">源IP</th>
+                                <th style="float: left;width: 90px;text-align: center;margin-right: -13px">源端口</th>
+                                <th style="float: left;width: 50px;text-align: center">源地理位置</th>
+                                <th style="float: left;width: 90px;text-align: center">目的IP</th>
+                                <th style="float: left;width: 56px;text-align: center">目的端口</th>
+                                <th style="float: left;width: 56px;text-align: center">目的地理位置</th>
+                                <th style="float: left;width: 63px;text-align: center">攻击类型</th>
+                            </tr>
+                            <tr ng-repeat="i in attacked_infos">
+                                <th style="float: left;width: 70px;text-align: center;margin: 0 5px 0 0">||i.utc_time||</th>
+                                <th style="float: left;width: 100px;word-break:break-all;text-align: center">||i.URL||</th>
+                                <th style="float: left;width: 70px;text-align: center">||i.NetProType||</th>
+                                <th style="float: left;width: 155px;text-align: center;word-break:break-all">||i.MesHeader||</th>
+                                <th style="float: left;width: 125px;text-align: center;word-break:break-all">||i.MesBody||</th>
+                                <th style="float: left;width: 60px;text-align: center">||i.ResponseCode||</th>
+                                <th style="float: left;width: 230px;text-align: center;word-break:break-all">||i.ResponseBody||</th>
+                                <th style="float: left;width: 90px;text-align: center">||i.SrcIP||</th>
+                                <th style="float: left;width: 55px;text-align: center">||i.SrcPort||</th>
+                                <th style="float: left;width: 55px;text-align: center">||i.SrcGeoPos||</th>
+                                <th style="float: left;width: 90px;text-align: center">||i.DescIP||</th>
+                                <th style="float: left;width: 55px;text-align: center">||i.DescPort||</th>
+                                <th style="float: left;width: 55px;text-align: center">||i.DescGeoPos||</th>
+                                <th style="float: left;width: 64px;text-align: center">||i.AttType||</th>
+                            </tr>
+                        </table>
+                        <div id="attacked_infos_pagination" style="top:650px;left: 465px;position: absolute"></div>
+
+                    </div>
+
                 </div>
+
+
                 <!--被攻击来源统计TOP5-->
             </div>
             <!--大公鸡-->
@@ -103,11 +183,52 @@
                         </tr>
                         <tr style="line-height:25px" ng-repeat="i in attack_type_count">
                             <th ng-style="{color: i.color}">||i.type||</th>
-                            <th>||i.count||</th>
+                            <th style="cursor: pointer" ng-click="show_attack_type_modal(i.type)">||i.count||</th>
                         </tr>
 
                     </table>
                 </div>
+
+
+                    <div id="attack_type_modal" style="display:none;background: rgba(9,49,80, 0.5);width: 1300px;height: 680px;font-size: 13px">
+                        <table width="100%">
+                            <tr style="text-align: center;line-height: 35px;font-size: 14px">
+                                <th style="float: left;width: 70px">时间</th>
+                                <th style="float: left;width: 100px;word-break:break-all;margin-right: 6px">URL</th>
+                                <th style="float: left;width: 67px;margin-right: 13px">网络协议类型</th>
+                                <th style="float: left;width: 125px;text-align: center;margin-right: 4px">报文头</th>
+                                <th style="float: left;width: 155px;text-align: center;word-break:break-all;margin-right: -12px">报文内容</th>
+                                <th style="float: left;width: 60px;text-align: center;margin-right: -5px">响应代码</th>
+                                <th style="float: left;width: 230px;text-align: center;word-break:break-all">响应正文</th>
+                                <th style="float: left;width: 90px;text-align: center;margin-right: -17px">源IP</th>
+                                <th style="float: left;width: 90px;text-align: center;margin-right: -13px">源端口</th>
+                                <th style="float: left;width: 50px;text-align: center">源地理位置</th>
+                                <th style="float: left;width: 90px;text-align: center">目的IP</th>
+                                <th style="float: left;width: 56px;text-align: center">目的端口</th>
+                                <th style="float: left;width: 56px;text-align: center">目的地理位置</th>
+                                <th style="float: left;width: 63px;text-align: center">攻击类型</th>
+                            </tr>
+                            <tr ng-repeat="i in attack_type_infos">
+                                <th style="float: left;width: 70px;text-align: center;margin: 0 5px 0 0">||i.utc_time||</th>
+                                <th style="float: left;width: 100px;word-break:break-all;text-align: center">||i.URL||</th>
+                                <th style="float: left;width: 70px;text-align: center">||i.NetProType||</th>
+                                <th style="float: left;width: 155px;text-align: center;word-break:break-all">||i.MesHeader||</th>
+                                <th style="float: left;width: 125px;text-align: center;word-break:break-all">||i.MesBody||</th>
+                                <th style="float: left;width: 60px;text-align: center">||i.ResponseCode||</th>
+                                <th style="float: left;width: 230px;text-align: center;word-break:break-all">||i.ResponseBody||</th>
+                                <th style="float: left;width: 90px;text-align: center">||i.SrcIP||</th>
+                                <th style="float: left;width: 55px;text-align: center">||i.SrcPort||</th>
+                                <th style="float: left;width: 55px;text-align: center">||i.SrcGeoPos||</th>
+                                <th style="float: left;width: 90px;text-align: center">||i.DescIP||</th>
+                                <th style="float: left;width: 55px;text-align: center">||i.DescPort||</th>
+                                <th style="float: left;width: 55px;text-align: center">||i.DescGeoPos||</th>
+                                <th style="float: left;width: 64px;text-align: center">||i.AttType||</th>
+                            </tr>
+                        </table>
+                        <div id="attacked_type_pagination" style="top:650px;left: 465px;position: absolute"></div>
+
+                    </div>
+
             </div>
             <!--攻击类型统计-->
 
@@ -150,26 +271,27 @@
                     <div class="table_content" style="width: 100%;height: 360px;margin: 0 0 25px 0">
                         <table style="font-size: 13px;margin: 10px auto">
                             <tr style="line-height:25px">
-                                <th>时间</th>
+                                <th style="width: 180px">时间</th>
                                 <th style="width: 150px">源IP</th>
                                 <th style="width: 150px">目标IP</th>
                                 <th style="width: 250px">目标URL</th>
-                                <th style="width: 100px">目标地理位置</th>
-                                <th style="width: 150px">攻击类型</th>
+                                <th style="width: 120px">目标地理位置</th>
+                                <th style="width: 150px">类型</th>
                                 {#                            <th style="width: 75px">目标网站</th>#}
                             </tr>
-                            <tr style="line-height:25px" ng-repeat="i in flow_info">
-                                <th ng-if="i.time!='None'">||i.time||</th>
-                                <th ng-if="i.time=='None'"></th>
-                                <th>||i.src_ip||</th>
-                                <th>||i.desc_ip||</th>
-                                <th>||i.url||</th>
-                                <th>||i.DescGeoPos||</th>
-                                <th ng-if="i.type==1">Sql注入</th>
-                                <th ng-if="i.type==2">XSS</th>
-                                <th ng-if="i.type==3">Web后门</th>
-                                <th ng-if="i.type==4">远程命令执行</th>
-                                <th ng-if="i.type==5">文件包含</th>
+                            <tr style="line-height:25px;" ng-repeat="i in flow_info">
+                                <th ng-style="set_color(i.type)" ng-if="i.time!='None'">||i.time.slice(0, 19)||</th>
+                                <th ng-style="set_color(i.type)" ng-if="i.time=='None'"></th>
+                                <th ng-style="set_color(i.type)">||i.src_ip||</th>
+                                <th ng-style="set_color(i.type)">||i.desc_ip||</th>
+                                <th ng-style="set_color(i.type)">||i.url.slice(0, 63)||</th>
+                                <th ng-style="set_color(i.type)">||i.DescGeoPos||</th>
+                                <th ng-style="set_color(i.type)" ng-if="i.type==0">正常</th>
+                                <th ng-style="set_color(i.type)" ng-if="i.type==1">Sql注入</th>
+                                <th ng-style="set_color(i.type)" ng-if="i.type==2">XSS</th>
+                                <th ng-style="set_color(i.type)" ng-if="i.type==3">Web后门</th>
+                                <th ng-style="set_color(i.type)" ng-if="i.type==4">远程命令执行</th>
+                                <th ng-style="set_color(i.type)" ng-if="i.type==5">文件包含</th>
 
                                 {#                            <th ng-if="i.type=='Sql注入'||i.type=='XSS'">||i.count||/||i.valid_count||</th>#}
                                 {#                            <th ng-if="i.type!='Sql注入'&&i.type!='XSS'">||i.count||/0</th>#}
@@ -186,6 +308,9 @@
 
         </div>
     </div>
+
+
+
 
 
 {% endblock %}
@@ -206,16 +331,47 @@
         })
 
         app.controller('flow_info', function ($scope, $http) {
+
+            $scope.set_color = function (type) {
+                switch(type)
+                        {
+                        case 1:
+                           return {color: "green"}
+                          break;
+                        case 2: return {color: "red"}
+                          break;
+                        case 3:
+                            return {color: "orange"}
+                            break;
+                        case 4:
+                            return {color: "purple"}
+                            break;
+                        case 5:
+                            return {color: "blue"}
+                            break;
+                        }
+            }
+
+
+
             //城市经纬度信息
             var city_coordinate = {
-                '上海': [121.48, 31.22], '北京': [116.5, 40], '西安': [108.9, 34.3],
-                '成都': [104.1, 30.6], '乌鲁木齐':[87.7, 43.8], '台北': [121.3, 25.0], '广州': [113.2,23.2],
-                '天津': [117.2, 39.1], '香港': [114.1, 22.2], '深圳': [114.1, 22.6], '杭州': [120.2, 30.3],
+                '上海': [121.5, 31.2], '北京': [116.5, 40], '西安': [108.9, 34.3],
+                '成都': [104.1, 30.6], '乌鲁木齐': [87.7, 43.8], '台北': [121.3, 25.0], '广州': [113.2, 23.2],
+                '天津': [117.2, 39.1], '香港': [114.1, 22.2], '深圳': [114.1, 22.6], '绍兴': [120.2, 30.3],
                 '重庆': [106.5, 29.6], '青岛': [120.3, 36.0], '厦门': [118.1, 24.5], '福州': [119.3, 26.1],
-                '兰州': [103.7, 36.0], '南京':[118.8, 32.0], '沈阳':[123.4, 41.8], '太原': [112.5, 41.8],
-                '拉萨': [91.0, 29.6], '昆明': [102.7, 25.1], '武汉': [114.3, 30.5], '郑州': [113.7, 34.5],
-                '三亚': [109.5, 18.2]
+                '兰州': [103.7, 36.0], '南京': [118.8, 32.0], '沈阳': [123.4, 41.8], '太原': [112.5, 41.8],
+                '拉萨': [91.0, 29.6], '昆明': [102.7, 25.1], '武汉': [114.3, 30.5], '郑州': [113.7, 34.8],
+                '海口': [110.4, 20.0]
             };
+
+            var province_center_coordinate =
+                    [[126.6, 45.75], [114.5, 38.0], [102.7, 25.1], [104.1, 30.1], [125.4, 43.9], [123.1, 41.8],
+                        [101.8, 36.6], [108.9, 34.3], [113.7, 34.8], [117.0, 36.4], [112.5, 37.9], [117.2, 31.5],
+                        [114.3, 30.5], [113, 28.2], [118.8, 32.1], [106.7, 26.6], [108.2, 22.5], [120.2, 30.3],
+                        [115.9, 28.7], [113.2, 23.2], [119.3, 26.1], [121.3, 25], [110.4, 20.0], [111.4, 40.5],
+                        [106.3, 38.5], [87.7, 43.8], [91, 29.6], [113.5, 22.2], [116.4, 39.9], [103.7, 36.0], [121.5, 31.2],
+                        [114.1, 22.2], [117.2, 39.1], [106.5, 29.6]]
 
 
             //画布大小
@@ -280,6 +436,15 @@
                 //  return path(d);
                 //})
 
+                for (var i = 0; i < province_center_coordinate.length; i++) {
+                    console.log(province_center_coordinate[i]['x'], province_center_coordinate[i]['y'])
+                    svg.append('circle').attr({
+                        cx: projection(province_center_coordinate[i])[0],
+                        cy: projection(province_center_coordinate[i])[1],
+                        "fill": 'orange',
+                        r: 4
+                    })
+                }
             })
 
             //获取范围内的随机数
@@ -291,17 +456,23 @@
 
 
             var colorList = ['green', 'red', 'orange', 'purple', 'deepskyblue']
+            var attack_type = [1, 2, 3, 4, 5]
 
-            function getColorByRandom(colorList) {
-                var colorIndex = Math.floor(Math.random() * colorList.length);
-                var color = colorList[colorIndex];
-                return color;
-            }
+            var ordinal = d3.scale.ordinal()  //比例尺
+                    .domain(attack_type)
+                    .range(colorList);
+
+            {#            function getColorByRandom(colorList) {#}
+            {#                var colorIndex = Math.floor(Math.random() * colorList.length);#}
+            {#                var color = colorList[colorIndex];#}
+            {#                return color;#}
+            {#            }#}
 
 
             var currentIndex = 0;
 
             var stop = false
+
 
             function newRequest() {
 
@@ -318,7 +489,7 @@
                     setTimeout(newRequest, 1500)
                     currentIndex++
 
-                    console.log(data[0])
+                    console.log(data[0]['type'])
                     var start_city_coordinate = projection(city_coordinate[data[0]['SrcGeoPos']])//投影映射计算
                     var end_city_coordinate = projection(city_coordinate[data[0]['DescGeoPos']]) //投影映射计算
                     console.log(start_city_coordinate)
@@ -338,7 +509,7 @@
                                 "stroke-width": 4,
                                 r: 2
                             })
-                            .attr('stroke', getColorByRandom(colorList))
+                            .attr('stroke', ordinal(data[0]['type']))
                             .style("stroke-opacity", 1).
                             transition().duration(4000).
                             ease("cubic-out").
@@ -378,7 +549,23 @@
                             .each('end', function () {
                                 line.transition()
                                         .attr('marker-end', '')
-                            });
+                                svg.append('circle')
+                                        .attr({
+                                            cx: x2,
+                                            cy: y2,
+                                            fill: "none",
+                                            "stroke-width": 4,
+                                            r: 2
+                                        })
+                                        .attr('stroke', ordinal(data[0]['type']))
+                                        .style("stroke-opacity", 1).
+                                        transition().duration(4000).
+                                        ease("cubic-out").
+                                        style("stroke-opacity", 0).
+                                        attr("r", 80).remove()
+                            })
+
+
                 })
             }
 
@@ -395,6 +582,60 @@
                 $scope.attack_type_count = data
             })
 
+            $scope.show_attack_type_modal = function(type){
+                console.log(type)
+                var attack_type
+                switch(type)
+                        {
+                        case 'Sql注入':
+                           attack_type = 1
+                          break;
+                        case 'XSS': attack_type = 2
+                          break;
+                        case 'Web后门':
+                            attack_type = 3
+                            break;
+                        case '远程命令执行':
+                            attack_type = 4
+                            break;
+                        case '文件包含':
+                            attack_type =5
+                            break;
+                        }
+
+                $http.post('/attack_flow', {'type': attack_type}, {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                    }
+                }).success(function(data){
+                    console.log(data)
+                    $scope.attack_type_infos = data
+
+                    $('#attacked_type_pagination').pagination({
+                        items: data.length,
+                        itemsOnPage: 4,
+                        prevText: '上一页',
+                        nextText: '下一页',
+                        cssStyle: 'dark-theme',
+                        onPageClick: function () {
+
+                            $scope.$apply(function () {  // update pagination data
+                                var log_current_page = $('#attacked_type_pagination').pagination('getCurrentPage')
+                                $scope.attack_type_infos = data.slice(log_current_page * 4 - 4, log_current_page * 4)
+                            })
+
+                        },
+                        onInit: function () {
+                            $scope.attack_type_infos = data.slice(0, 4)
+                        }
+                    });
+
+                })
+
+                $('#attack_type_modal').modal({});
+                return false;
+            }
+
         })
 
         app.controller('attack_location_count', function ($scope, $http) {
@@ -406,6 +647,43 @@
                 $scope.attack_location_count = data
             })
 
+            $scope.show_attack_modal = function(location){
+                console.log(location)
+                $http.post('/attack_flow', {'attack_location': location}, {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                    }
+                }).success(function(data){
+                    console.log(data)
+                    $scope.attack_infos = data
+
+                    $('#attack_infos_pagination').pagination({
+                        items: data.length,
+                        itemsOnPage: 4,
+                        prevText: '上一页',
+                        nextText: '下一页',
+                        cssStyle: 'dark-theme',
+                        onPageClick: function () {
+
+                            $scope.$apply(function () {  // update pagination data
+                                var log_current_page = $('#attack_infos_pagination').pagination('getCurrentPage')
+                                $scope.attack_infos = data.slice(log_current_page * 4 - 4, log_current_page * 4)
+                            })
+
+                        },
+                        onInit: function () {
+                            $scope.attack_infos = data.slice(0, 4)
+                        }
+                    });
+
+                })
+
+                $('#attack_modal').modal({});
+                return false;
+
+                //attack_infos
+            }
+
         })
 
         app.controller('attacked_location_count', function ($scope, $http) {
@@ -416,6 +694,43 @@
             promise.success(function (data) {
                 $scope.attacked_location_count = data
             })
+
+             $scope.show_attacked_modal = function(location){
+                console.log(location)
+                $http.post('/attack_flow', {'attacked_location': location}, {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                    }
+                }).success(function(data){
+                    console.log(data)
+                    $scope.attacked_infos = data
+
+                    $('#attacked_infos_pagination').pagination({
+                        items: data.length,
+                        itemsOnPage: 4,
+                        prevText: '上一页',
+                        nextText: '下一页',
+                        cssStyle: 'dark-theme',
+                        onPageClick: function () {
+
+                            $scope.$apply(function () {  // update pagination data
+                                var log_current_page = $('#attacked_infos_pagination').pagination('getCurrentPage')
+                                $scope.attacked_infos = data.slice(log_current_page * 4 - 4, log_current_page * 4)
+                            })
+
+                        },
+                        onInit: function () {
+                            $scope.attacked_infos = data.slice(0, 4)
+                        }
+                    });
+
+                })
+
+                $('#attacked_modal').modal({});
+                return false;
+
+                //attack_infos
+            }
 
         })
 
@@ -492,7 +807,14 @@
         {#                loop();#}
         {#            }, rand2);#}
         {#        }());#}
-
+app.config(function ($httpProvider) {
+            $httpProvider.defaults.transformRequest = function (data) {
+                if (data === undefined) {
+                    return data;
+                }
+                return $.param(data);
+            }
+        });
 
     </script>
 {% endblock %}
