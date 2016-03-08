@@ -74,11 +74,14 @@
 {% block content %}
     <div ng-controller="report_info">
         <div style="width: 100%;margin: 30px 0 0 0;text-align: center">
-            <form>
+            <form style="width: 1200px;margin: 0 auto">
                 <input id="ip_or_url_input" ng-model="ip_or_url" class="form-control" placeholder="IP或URL">
                 <button id="ip_or_url_btn" ng-click="refresh_info()" class="button"
-                        style="cursor: pointer;margin: 0 0 0 20px">查询
+                        style="cursor: pointer;margin: 0 20px 0 20px">查询
                 </button>
+                <a href="{% url 'index' %}"><button id="ip_or_url_btn"  type="button" class="button"
+                        style="cursor: pointer;float: right;">返回
+                </button></a>
             </form>
         </div>
 
