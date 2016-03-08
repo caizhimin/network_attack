@@ -5,7 +5,7 @@ import requests
 import threadpool
 from django.shortcuts import render_to_response
 from django.http import HttpResponse
-from flow.models import Flow
+from flow.models import Flow, AttTypeInfo
 from website_user.models import Website, WebSiteReport
 from utils.logger import log
 from django.views.decorators.csrf import csrf_exempt
@@ -279,28 +279,38 @@ def report_info(request):
     # risk_rank = report_obj.RiskRank
 
     # get single report object's attack info list
-
+    suggestion = []
     attack_info_list = []
 
     sql_attack = Flow.objects.filter(DescIP=ip, AttType=1)
     sql_attack_count = sql_attack.count()
     attack_info_list.append({'type': 'Sql注入', 'count': sql_attack_count})
+    if sql_attack_count > 0:
+        suggestion.append(AttTypeInfo.objects.get(AttType=1).AttOpinion)
 
     xss_attack = Flow.objects.filter(DescIP=ip, AttType=2)
     xss_attack_count = xss_attack.count()
     attack_info_list.append({'type': 'XSS', 'count': xss_attack_count})
+    if xss_attack_count > 0:
+        suggestion.append(AttTypeInfo.objects.get(AttType=2).AttOpinion)
 
     web_attack = Flow.objects.filter(DescIP=ip, AttType=3)
     web_attack_count = web_attack.count()
     attack_info_list.append({'type': 'Web后门', 'count': web_attack_count})
+    if web_attack_count > 0:
+        suggestion.append(AttTypeInfo.objects.get(AttType=3).AttOpinion)
 
     rc_attack = Flow.objects.filter(DescIP=ip, AttType=4)
     rc_attack_count = rc_attack.count()
     attack_info_list.append({'type': '远程命令执行', 'count': rc_attack_count})
+    if rc_attack_count > 0:
+        suggestion.append(AttTypeInfo.objects.get(AttType=4).AttOpinion)
 
     fc_attack = Flow.objects.filter(DescIP=ip,  AttType=5)
     fc_attack_count = fc_attack.count()
     attack_info_list.append({'type': '文件包含', 'count': fc_attack_count})
+    if fc_attack_count > 0:
+        suggestion.append(AttTypeInfo.objects.get(AttType=5).AttOpinion)
 
     # get single report object's attacker info list
 
@@ -335,7 +345,8 @@ def report_info(request):
                              'AttType': attack_type_dict.get(i.AttType, '未知')})
 
     result = {'domain': domain, 'ip': ip, 'location': location, 'attack_info_list': attack_info_list,
-              'attacker_info_list': attacker_info_list, 'logs': logs, 'attack_infos': attack_infos}
+              'attacker_info_list': attacker_info_list, 'logs': logs, 'attack_infos': attack_infos,
+              'suggestion': suggestion}
 
     return HttpResponse(json.dumps(result))
 
@@ -375,6 +386,7 @@ def flow_info(request, second):
     #         log.error(i.DescIP)
     #         log.error(e)
     #         desc_address = '未找到该IP地址'
+        print(i.UTC_Time)
         result.append({'time': str(i.UTC_Time), 'src_ip': i.SrcIP, 'desc_ip': i.DescIP, 'url': i.URL, 'type': i.AttType,
                        'DescGeoPos': i.DescGeoPos, 'SrcGeoPos': i.SrcGeoPos})
     return HttpResponse(json.dumps(result))
