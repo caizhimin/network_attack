@@ -386,7 +386,6 @@ def flow_info(request, second):
     #         log.error(i.DescIP)
     #         log.error(e)
     #         desc_address = '未找到该IP地址'
-        print(i.UTC_Time)
         result.append({'time': str(i.UTC_Time), 'src_ip': i.SrcIP, 'desc_ip': i.DescIP, 'url': i.URL, 'type': i.AttType,
                        'DescGeoPos': i.DescGeoPos, 'SrcGeoPos': i.SrcGeoPos})
     return HttpResponse(json.dumps(result))
