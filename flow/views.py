@@ -404,13 +404,13 @@ def attack_flow(request):
         flows = Flow.objects.filter(DescGeoPos=attacked_location)
     if _type:
         flows = Flow.objects.filter(AttType=int(_type))
-    for i in flows:
+    for i in flows.exclude(AttType=''):
         result.append({'utc_time': str(i.UTC_Time)[0: 19], 'URL': i.URL, 'NetProType': i.NetProType,
                        'MesHeader': i.MesHeader, 'MesBody': i.MesBody, 'ResponseCode': i.ResponseCode,
                        'ResponseBody': i.ResponseBody, 'SrcIP': i.SrcIP, 'SrcPort': i.SrcPort,
                        'SrcGeoPos': i.SrcGeoPos if i.SrcGeoPos else '未知', 'DescIP': i.DescIP,
                        'DescPort': i.DescPort, 'DescGeoPos': i.DescGeoPos if i.DescGeoPos else '未知',
-                       'AttType': attack_type_dict.get(i.AttType, '未知')})
+                       'AttType': attack_type_dict.get(i.AttType, '正常')})
 
     return HttpResponse(json.dumps(result))
 
