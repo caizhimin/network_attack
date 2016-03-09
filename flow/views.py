@@ -342,7 +342,7 @@ def report_info(request):
                              'ResponseBody': i.ResponseBody, 'SrcIP': i.SrcIP, 'SrcPort': i.SrcPort,
                              'SrcGeoPos': i.SrcGeoPos if i.SrcGeoPos else '未知', 'DescIP': i.DescIP,
                              'DescPort': i.DescPort, 'DescGeoPos': i.DescGeoPos if i.DescGeoPos else '未知',
-                             'AttType': attack_type_dict.get(i.AttType, '未知')})
+                             'AttType': attack_type_dict.get(i.AttType, '正常')})
 
     result = {'domain': domain, 'ip': ip, 'location': location, 'attack_info_list': attack_info_list,
               'attacker_info_list': attacker_info_list, 'logs': logs, 'attack_infos': attack_infos,
