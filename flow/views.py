@@ -216,7 +216,7 @@ def attack_location_count(request):
     attack_location_counts = Flow.objects.raw("""SELECT *, count( * ) AS count
                                                 FROM flow_flow where AttType != 0
                                                 GROUP BY SrcGeoPos
-                                                ORDER BY SrcGeoPos
+                                                ORDER BY count DESC
                                                 LIMIT 5
                                                 """)
     for i in attack_location_counts:
@@ -237,7 +237,7 @@ def attacked_location_count(request):
     attack_location_counts = Flow.objects.raw("""SELECT *, count( * ) AS count
                                                 FROM flow_flow where AttType != 0
                                                 GROUP BY DescGeoPos
-                                                ORDER BY DescGeoPos
+                                                ORDER BY count DESC
                                                 LIMIT 5
                                                 """)
     for i in attack_location_counts:
