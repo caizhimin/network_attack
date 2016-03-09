@@ -310,6 +310,7 @@
                                 <th ng-style="set_color(i.type)">||i.desc_ip||</th>
                                 <th ng-style="set_color(i.type)">||i.url.slice(0, 63)||</th>
                                 <th ng-style="set_color(i.type)">||i.DescGeoPos||</th>
+                                <th ng-style="set_color(i.type)" ng-if="!i.type">正常</th>
                                 <th ng-style="set_color(i.type)" ng-if="i.type==0">正常</th>
                                 <th ng-style="set_color(i.type)" ng-if="i.type==1">Sql注入</th>
                                 <th ng-style="set_color(i.type)" ng-if="i.type==2">XSS</th>
