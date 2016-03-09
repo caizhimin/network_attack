@@ -396,6 +396,7 @@ def attack_flow(request):
     attack_location = request.POST.get('attack_location')
     attacked_location = request.POST.get('attacked_location')
     _type = request.POST.get('type')
+
     result = []
     attack_type_dict = {1: 'Sql注入', 2: 'XSS', 3: 'Web后门', 4: '远程命令执行', 5: '文件包含', 0: '正常'}
     if attack_location:
@@ -404,7 +405,7 @@ def attack_flow(request):
         flows = Flow.objects.filter(DescGeoPos=attacked_location)
     if _type:
         flows = Flow.objects.filter(AttType=int(_type))
-    for i in flows.exclude(AttType=''):
+    for i in flows.exclude(AttType=None):
         result.append({'utc_time': str(i.UTC_Time)[0: 19], 'URL': i.URL, 'NetProType': i.NetProType,
                        'MesHeader': i.MesHeader, 'MesBody': i.MesBody, 'ResponseCode': i.ResponseCode,
                        'ResponseBody': i.ResponseBody, 'SrcIP': i.SrcIP, 'SrcPort': i.SrcPort,
