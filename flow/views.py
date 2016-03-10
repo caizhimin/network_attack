@@ -336,7 +336,7 @@ def report_info(request):
                      'AttType': attack_type_dict.get(i.AttType, '未知')})
 
     attack_infos = []  # 攻击详情
-    for i in flows.exclude(AttType=0).exclude(AttType=''):
+    for i in flows.exclude(AttType=0).exclude(AttType=None):
         attack_infos.append({'utc_time': str(i.UTC_Time)[0: 19], 'URL': i.URL, 'NetProType': i.NetProType,
                              'MesHeader': i.MesHeader, 'MesBody': i.MesBody, 'ResponseCode': i.ResponseCode,
                              'ResponseBody': i.ResponseBody, 'SrcIP': i.SrcIP, 'SrcPort': i.SrcPort,
