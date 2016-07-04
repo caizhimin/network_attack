@@ -1,0 +1,18 @@
+<uwsgi>
+    <socket>0.0.0.0:8000</socket>
+    <listen>80</listen>
+    <master>true</master>
+    <pidfile>/usr/local/nginx/network_attack_uwsgi.pid</pidfile>
+    <processes>2</processes>
+    <module>django_wsgi</module>
+    #这个文件下面要建立
+    <pythonpath>/opt/network_attack</pythonpath>
+    #刚才建立项目的路径
+    <profiler>true</profiler>
+    <memory-report>true</memory-report>
+    <enable-threads>true</enable-threads>
+    <logdate>true</logdate>
+    <logto>/opt/log/uwsgi/network_attack_uwsgi.log</logto>
+    <limit-as>6048</limit-as>
+    <buffer-size>32768</buffer-size>
+</uwsgi>
