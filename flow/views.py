@@ -1,8 +1,6 @@
 # coding: utf8
 import json
-import grequests
 import requests
-import threadpool
 from django.shortcuts import render_to_response
 from django.http import HttpResponse
 from flow.models import Flow, AttTypeInfo
