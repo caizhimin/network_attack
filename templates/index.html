@@ -679,7 +679,7 @@
                 if(location=='未知'){
                     location = ''
                 }
-                $http.post('/attack_flow', {'attack_location': location}, {
+                $http.post('/attack_flow', {'attack_location': location, 'to_or_from': 'from'}, {
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
                     }
@@ -730,7 +730,7 @@
                  if(location=='未知'){
                      location = ''
                  }
-                $http.post('/attack_flow', {'attacked_location': location}, {
+                $http.post('/attack_flow', {'attacked_location': location, 'to_or_from': 'to'}, {
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
                     }

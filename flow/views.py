@@ -393,13 +393,15 @@ def flow_info(request, second):
 def attack_flow(request):
     attack_location = request.POST.get('attack_location')
     attacked_location = request.POST.get('attacked_location')
+    to_or_from = request.POST.get('to_or_from')
     _type = request.POST.get('type')
+    print attack_location, attacked_location
 
     result = []
     attack_type_dict = {1: 'Sql注入', 2: 'XSS', 3: 'Web后门', 4: '远程命令执行', 5: '文件包含', 0: '正常'}
-    if attack_location:
+    if to_or_from == 'from':
         flows = Flow.objects.filter(SrcGeoPos=attack_location)
-    if attacked_location:
+    if to_or_from == 'to':
         flows = Flow.objects.filter(DescGeoPos=attacked_location)
     if _type:
         flows = Flow.objects.filter(AttType=int(_type))
