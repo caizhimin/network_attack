@@ -292,7 +292,7 @@
                 <!--实时攻击信息-->
                 <div style="float:left; width: 1150px;height: 340px;">
                     <div class="table_title" style="width: 1150px">实时攻击信息</div>
-                    <div class="table_content" style="width: 100%;height: 360px;margin: 0 0 25px 0">
+                    <div class="table_content" style="width: 100%;height: 650px;margin: 0 0 25px 0">
                         <table style="font-size: 13px;margin: 10px auto">
                             <tr style="line-height:25px">
                                 <th style="width: 180px">时间</th>
@@ -311,12 +311,14 @@
                                 <th ng-style="set_color(i.type)">||i.url.slice(0, 63)||</th>
                                 <th ng-style="set_color(i.type)">||i.DescGeoPos||</th>
                                 <th ng-style="set_color(i.type)" ng-if="!i.type">正常</th>
-                                <th ng-style="set_color(i.type)" ng-if="i.type==0">正常</th>
+{#                                <th ng-style="set_color(i.type)" ng-if="i.type==0">正常</th>#}
                                 <th ng-style="set_color(i.type)" ng-if="i.type==1">Sql注入</th>
                                 <th ng-style="set_color(i.type)" ng-if="i.type==2">XSS</th>
                                 <th ng-style="set_color(i.type)" ng-if="i.type==3">Web后门</th>
                                 <th ng-style="set_color(i.type)" ng-if="i.type==4">远程命令执行</th>
                                 <th ng-style="set_color(i.type)" ng-if="i.type==5">文件包含</th>
+                                <th ng-style="set_color(i.type)" ng-if="i.type==6">Scanner</th>
+                                <th ng-style="set_color(i.type)" ng-if="i.type==7">Exp</th>
 
                                 {#                            <th ng-if="i.type=='Sql注入'||i.type=='XSS'">||i.count||/||i.valid_count||</th>#}
                                 {#                            <th ng-if="i.type!='Sql注入'&&i.type!='XSS'">||i.count||/0</th>#}

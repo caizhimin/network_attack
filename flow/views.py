@@ -218,7 +218,7 @@ def attack_location_count(request):
                                                 LIMIT 5
                                                 """)
     for i in attack_location_counts:
-        result.append({'location': i.SrcGeoPos, 'count': i.count})
+        result.append({'location': i.SrcGeoPos if i.SrcGeoPos else '未知', 'count': i.count})
 
     return HttpResponse(json.dumps(sorted(sum_list_of_list_for_same_location(result), reverse=True,
                                           key=lambda s: s['count'])))
