@@ -701,7 +701,7 @@
                                         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
                                     }
                                 }).success(function(data){
-                                    $scope.attack_infos = data['flows_slice']
+                                    $scope.attack_infos = JSON.parse(data['flows_slice'])
                                 })
                             })
 
