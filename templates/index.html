@@ -501,102 +501,102 @@
             var stop = false
 
 
-            function newRequest() {
-
-                if (stop) {
-                    return
-                }
-                var promise = $http({
-                    method: 'GET',
-                    url: '/flow_info/' + currentIndex
-                });
-
-                promise.success(function (data) {
-                    $scope.flow_info = data
-                    setTimeout(newRequest, 1500)
-                    currentIndex++
-
-                    console.log(data[0]['type'])
-                    var start_city_coordinate = projection(city_coordinate[data[0]['SrcGeoPos']])//投影映射计算
-                    var end_city_coordinate = projection(city_coordinate[data[0]['DescGeoPos']]) //投影映射计算
-                    console.log(start_city_coordinate)
-                    var x1 = start_city_coordinate[0]
-                    var y1 = start_city_coordinate[1]
-                    var x2 = end_city_coordinate[0]
-                    var y2 = end_city_coordinate[1]
+{#            function newRequest() {#}
+{##}
+{#                if (stop) {#}
+{#                    return#}
+{#                }#}
+{#                var promise = $http({#}
+{#                    method: 'GET',#}
+{#                    url: '/flow_info/' + currentIndex#}
+{#                });#}
+{##}
+{#                promise.success(function (data) {#}
+{#                    $scope.flow_info = data#}
+{#                    setTimeout(newRequest, 1500)#}
+{#                    currentIndex++#}
+{##}
+{#                    console.log(data[0]['type'])#}
+{#                    var start_city_coordinate = projection(city_coordinate[data[0]['SrcGeoPos']])//投影映射计算#}
+{#                    var end_city_coordinate = projection(city_coordinate[data[0]['DescGeoPos']]) //投影映射计算#}
+{#                    console.log(start_city_coordinate)#}
+{#                    var x1 = start_city_coordinate[0]#}
+{#                    var y1 = start_city_coordinate[1]#}
+{#                    var x2 = end_city_coordinate[0]#}
+{#                    var y2 = end_city_coordinate[1]#}
                     {#                    if( $scope.flow_info.length<6){#}
                     {#                        stop=true#}
                     {#                    }#}
+{##}
+{#                    svg.append('circle')#}
+{#                            .attr({#}
+{#                                cx: x1,#}
+{#                                cy: y1,#}
+{#                                fill: "none",#}
+{#                                "stroke-width": 4,#}
+{#                                r: 2#}
+{#                            })#}
+{#                            .attr('stroke', ordinal(data[0]['type']))#}
+{#                            .style("stroke-opacity", 1).#}
+{#                            transition().duration(4000).#}
+{#                            ease("cubic-out").#}
+{#                            style("stroke-opacity", 0).#}
+{#                            attr("r", 80).remove()#}
+{##}
+{##}
+{#                    var line = svg.append("line")#}
+{#                            .attr("x1", x1)#}
+{#                            .attr("y1", y1)#}
+{#                            .attr("x2", x1)#}
+{#                            .attr("y2", y1)#}
+{#                            .attr("stroke", "red")#}
+{#                            .attr("stroke-width", 2)#}
+{#                            .attr('class', 'line')#}
+{#                            .attr("marker-end", "url(#arrow)")#}
+{#                        // 开始线段#}
+{#                            .transition()#}
+{#                            .duration('800')#}
+{#                            .ease('linear')#}
+{#                            .attr('x2', x1 + 0.4 * (x2 - x1))  //x1+比例*(x2-x1)#}
+{#                            .attr('y2', y1 + 0.4 * (y2 - y1))    //y1+比例*(y2-y1)#}
+{#                        //  位移#}
+{#                            .transition()#}
+{#                            .duration('1000')#}
+{#                            .ease('linear')#}
+{#                            .attr('x1', x2 - 0.4 * (x2 - x1))#}
+{#                            .attr('y1', y2 - 0.4 * (y2 - y1))#}
+{#                            .attr('x2', x2)#}
+{#                            .attr('y2', y2)#}
+{#                        // 结束线段#}
+{#                            .transition()#}
+{#                            .duration('800')#}
+{#                            .ease('linear')#}
+{#                            .attr('x1', x2)#}
+{#                            .attr('y1', y2)#}
+{#                            .each('end', function () {#}
+{#                                line.transition()#}
+{#                                        .attr('marker-end', '')#}
+{#                                svg.append('circle')#}
+{#                                        .attr({#}
+{#                                            cx: x2,#}
+{#                                            cy: y2,#}
+{#                                            fill: "none",#}
+{#                                            "stroke-width": 4,#}
+{#                                            r: 2#}
+{#                                        })#}
+{#                                        .attr('stroke', ordinal(data[0]['type']))#}
+{#                                        .style("stroke-opacity", 1).#}
+{#                                        transition().duration(4000).#}
+{#                                        ease("cubic-out").#}
+{#                                        style("stroke-opacity", 0).#}
+{#                                        attr("r", 80).remove()#}
+{#                            })#}
+{##}
+{##}
+{#                })#}
+{#            }#}
 
-                    svg.append('circle')
-                            .attr({
-                                cx: x1,
-                                cy: y1,
-                                fill: "none",
-                                "stroke-width": 4,
-                                r: 2
-                            })
-                            .attr('stroke', ordinal(data[0]['type']))
-                            .style("stroke-opacity", 1).
-                            transition().duration(4000).
-                            ease("cubic-out").
-                            style("stroke-opacity", 0).
-                            attr("r", 80).remove()
-
-
-                    var line = svg.append("line")
-                            .attr("x1", x1)
-                            .attr("y1", y1)
-                            .attr("x2", x1)
-                            .attr("y2", y1)
-                            .attr("stroke", "red")
-                            .attr("stroke-width", 2)
-                            .attr('class', 'line')
-                            .attr("marker-end", "url(#arrow)")
-                        // 开始线段
-                            .transition()
-                            .duration('800')
-                            .ease('linear')
-                            .attr('x2', x1 + 0.4 * (x2 - x1))  //x1+比例*(x2-x1)
-                            .attr('y2', y1 + 0.4 * (y2 - y1))    //y1+比例*(y2-y1)
-                        //  位移
-                            .transition()
-                            .duration('1000')
-                            .ease('linear')
-                            .attr('x1', x2 - 0.4 * (x2 - x1))
-                            .attr('y1', y2 - 0.4 * (y2 - y1))
-                            .attr('x2', x2)
-                            .attr('y2', y2)
-                        // 结束线段
-                            .transition()
-                            .duration('800')
-                            .ease('linear')
-                            .attr('x1', x2)
-                            .attr('y1', y2)
-                            .each('end', function () {
-                                line.transition()
-                                        .attr('marker-end', '')
-                                svg.append('circle')
-                                        .attr({
-                                            cx: x2,
-                                            cy: y2,
-                                            fill: "none",
-                                            "stroke-width": 4,
-                                            r: 2
-                                        })
-                                        .attr('stroke', ordinal(data[0]['type']))
-                                        .style("stroke-opacity", 1).
-                                        transition().duration(4000).
-                                        ease("cubic-out").
-                                        style("stroke-opacity", 0).
-                                        attr("r", 80).remove()
-                            })
-
-
-                })
-            }
-
-            newRequest()
+{#            newRequest()#}
 
         })
 
@@ -679,16 +679,14 @@
                 if(location=='未知'){
                     location = ''
                 }
-                $http.post('/attack_flow', {'attack_location': location, 'to_or_from': 'from'}, {
+                $http.post('/attack_flow', {'attack_location': location, 'to_or_from': 'from', 'page': 1}, {
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
                     }
                 }).success(function(data){
-                    console.log(data)
                     $scope.attack_infos = data
-
                     $('#attack_infos_pagination').pagination({
-                        items: data.length,
+                        items: data['length'],
                         itemsOnPage: 4,
                         prevText: '上一页',
                         nextText: '下一页',
@@ -696,13 +694,19 @@
                         onPageClick: function () {
 
                             $scope.$apply(function () {  // update pagination data
-                                var log_current_page = $('#attack_infos_pagination').pagination('getCurrentPage')
-                                $scope.attack_infos = data.slice(log_current_page * 4 - 4, log_current_page * 4)
+                                var log_current_page = $('#attack_infos_pagination').pagination('getCurrentPage') // 当前页数
+                                $http.post('/attack_flow', {'attack_location': location, 'to_or_from': 'from', 'page': log_current_page}, {
+                                    headers: {
+                                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                                    }
+                                }).success(function(data){
+                                    $scope.attack_infos = data['result']
+                                })
                             })
 
                         },
                         onInit: function () {
-                            $scope.attack_infos = data.slice(0, 4)
+                            $scope.attack_infos = data['result']
                         }
                     });
 
