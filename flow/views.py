@@ -403,18 +403,33 @@ def attack_flow(request):
     attack_type_dict = {1: 'Sql注入', 2: 'XSS', 3: 'Web后门', 4: '远程命令执行', 5: '文件包含', 0: '正常'}
     if to_or_from == 'from':
         # flows = Flow.objects.filter(SrcGeoPos=attack_location).exclude(AttType=None)
-        flows = Flow.objects.raw("""SELECT * FROM flow_flow where SrcGeoPos = '%s'
-                                                """ % attack_location)
+        if page != 1:
+            # flows = Flow.objects.raw("""SELECT * FROM flow_flow where SrcGeoPos = '%s' LIMIT
+            #                                     """ % attack_location )
+            flows = Flow.objects.filter(SrcGeoPos=attack_location).exclude(AttType=None)[4*(page-1): page*4]
+        else:
+            flows = Flow.objects.filter(SrcGeoPos=attack_location).exclude(AttType=None)
+
     if to_or_from == 'to':
         # flows = Flow.objects.filter(DescGeoPos=attacked_location).exclude(AttType=None)
-        flows = Flow.objects.raw("""SELECT * FROM flow_flow where DescGeoPos = '%s'
-                                                """ % attacked_location)
+        # # flows = Flow.objects.raw("""SELECT * FROM flow_flow where DescGeoPos = '%s'
+        #                                         """ % attacked_location)
+        if page != 1:
+            # flows = Flow.objects.raw("""SELECT * FROM flow_flow where SrcGeoPos = '%s' LIMIT
+            #                                     """ % attack_location )
+            flows = Flow.objects.filter(DescGeoPos=attacked_location).exclude(AttType=None)[4*(page-1): page*4]
+        else:
+            flows = Flow.objects.filter(DescGeoPos=attacked_location).exclude(AttType=None)
     if _type:
         # flows = Flow.objects.filter(AttType=int(_type)).exclude(AttType=None)
-        flows = Flow.objects.raw("""SELECT * FROM flow_flow where AttType = %s and
-                                                """ % int(_type))
-    flows_slice = flows[4*(page-1): page*4]
-    print(flows_slice)
+        # flows = Flow.objects.raw("""SELECT * FROM flow_flow where AttType = %s and
+        #                                         """ % int(_type))
+        if page != 1:
+            # flows = Flow.objects.raw("""SELECT * FROM flow_flow where SrcGeoPos = '%s' LIMIT
+            #                                     """ % attack_location )
+            flows = Flow.objects.filter(AttType=int(_type)).exclude(AttType=None)[4*(page-1): page*4]
+        else:
+            flows = Flow.objects.filter(AttType=int(_type)).exclude(AttType=None)
     # for i in flows_slice:
     #     result['result'].append({'utc_time': str(i.UTC_Time)[0: 19], 'URL': i.URL, 'NetProType': i.NetProType,
     #                              'MesHeader': i.MesHeader, 'MesBody': i.MesBody, 'ResponseCode': i.ResponseCode,
@@ -424,7 +439,10 @@ def attack_flow(request):
     #                               'AttType': attack_type_dict.get(i.AttType, '正常')})
 
     # return HttpResponse(json.dumps(result))
-    return HttpResponse(json.dumps({'flows_slice': serializers.serialize('json',flows_slice), 'length': len(list(flows))}))
+    if page != 1:
+        return HttpResponse(json.dumps({'flows_slice': serializers.serialize('json', flows)}))
+    else:
+        return HttpResponse(json.dumps({'flows_slice': serializers.serialize('json', flows[0: 4]), 'length': len(flows)}))
 
 
 def canvas(request):
