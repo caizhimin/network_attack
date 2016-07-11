@@ -66,8 +66,8 @@
 
                             </tr>
                             <tr ng-repeat="i in attack_infos">
-                                <th style="float: left;width: 150px;text-align: center;margin: 0 5px 0 0">||i.utc_time||</th>
-                                <th style="float: left;width: 250px;word-break:break-all;text-align: center">||i.URL||</th>
+                                <th style="float: left;width: 150px;text-align: center;margin: 0 5px 0 0">||i.fields['UTC_Time'] | date : 'yyyy-MM-dd hh:mm:ss'||</th>
+                                <th style="float: left;width: 250px;word-break:break-all;text-align: center">||i.fields['URL']||</th>
                                 <th style="float: left;width: 130px;text-align: center">||i.SrcIP||</th>
                                 <th style="float: left;width: 90px;text-align: center">||i.SrcPort||</th>
                                 <th style="float: left;width: 120px;text-align: center">||i.SrcGeoPos||</th>
@@ -684,7 +684,8 @@
                         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
                     }
                 }).success(function(data){
-                    $scope.attack_infos = data
+                    $scope.attack_infos = JSON.parse(data['flows_slice'])
+                    console.log((data['flows_slice']))
                     $('#attack_infos_pagination').pagination({
                         items: data['length'],
                         itemsOnPage: 4,
@@ -700,13 +701,13 @@
                                         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
                                     }
                                 }).success(function(data){
-                                    $scope.attack_infos = data['result']
+                                    $scope.attack_infos = data['flows_slice']
                                 })
                             })
 
                         },
                         onInit: function () {
-                            $scope.attack_infos = data['result']
+                            $scope.attack_infos =  JSON.parse(data['flows_slice'])
                         }
                     });
 
