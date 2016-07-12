@@ -305,7 +305,7 @@
                     }
                     // 日志详情分页
                     $('#logs_pagination').pagination({
-                        items: data['logs'].length,
+                        items: data['logs_length'],
                         itemsOnPage: 4,
                         prevText: '上一页',
                         nextText: '下一页',
@@ -313,34 +313,34 @@
                         onPageClick: function () {
 
                             $scope.$apply(function () {  // update pagination data
-                                var log_current_page = $('#logs_pagination').pagination('getCurrentPage')
-                                $scope.logs = data['logs'].slice(log_current_page * 4 - 4, log_current_page * 4)
+{#                                var log_current_page = $('#logs_pagination').pagination('getCurrentPage')#}
+{#                                $scope.logs = data['logs'].slice(log_current_page * 4 - 4, log_current_page * 4)#}
                             })
 
                         },
                         onInit: function () {
-                            $scope.logs = data['logs'].slice(0, 4)
+{#                            $scope.logs = data['logs'].slice(0, 4)#}
                         }
                     });
                     //攻击详情分页
-                    $('#attack_pagination').pagination({
-                        items: data['attack_infos'].length,
-                        itemsOnPage: 4,
-                        prevText: '上一页',
-                        nextText: '下一页',
-                        cssStyle: 'dark-theme',
-                        onPageClick: function () {
-
-                            $scope.$apply(function () {  // update pagination data
-                                var attack_info_current_page = $('#attack_pagination').pagination('getCurrentPage')
-                                $scope.attack_infos = data['attack_infos'].slice(attack_info_current_page * 4 - 4, attack_info_current_page * 4)
-                            })
-
-                        },
-                        onInit: function () {
-                            $scope.attack_infos = data['attack_infos'].slice(0, 4)
-                        }
-                    });
+{#                    $('#attack_pagination').pagination({#}
+{#                        items: data['attack_infos'].length,#}
+{#                        itemsOnPage: 4,#}
+{#                        prevText: '上一页',#}
+{#                        nextText: '下一页',#}
+{#                        cssStyle: 'dark-theme',#}
+{#                        onPageClick: function () {#}
+{##}
+{#                            $scope.$apply(function () {  // update pagination data#}
+{#                                var attack_info_current_page = $('#attack_pagination').pagination('getCurrentPage')#}
+{#                                $scope.attack_infos = data['attack_infos'].slice(attack_info_current_page * 4 - 4, attack_info_current_page * 4)#}
+{#                            })#}
+{##}
+{#                        },#}
+{#                        onInit: function () {#}
+{#                            $scope.attack_infos = data['attack_infos'].slice(0, 4)#}
+{#                        }#}
+{#                    });#}
 
 
                     $scope.report_info = data

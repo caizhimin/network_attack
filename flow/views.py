@@ -324,27 +324,30 @@ def report_info(request):
                                    'location': j.SrcGeoPos if j.SrcGeoPos else '未知'})
 
     flows = Flow.objects.filter(DescIP=ip)
+    logs_length = flows.count()
+    attack_infos_length = flows.exclude(AttType=0).exclude(AttType=None).count()
     logs = []  # 日志详情
     attack_type_dict = {1: 'Sql注入', 2: 'XSS', 3: 'Web后门', 4: '远程命令执行', 5: '文件包含', 0: '正常'}
-    for i in flows:
-        logs.append({'utc_time': str(i.UTC_Time)[0: 19], 'URL': i.URL, 'NetProType': i.NetProType,
-                     'MesHeader': i.MesHeader, 'MesBody': i.MesBody, 'ResponseCode': i.ResponseCode,
-                     'ResponseBody': i.ResponseBody, 'SrcIP': i.SrcIP, 'SrcPort': i.SrcPort,
-                     'SrcGeoPos': i.SrcGeoPos if i.SrcGeoPos else '未知', 'DescIP': i.DescIP,
-                     'DescPort': i.DescPort, 'DescGeoPos': i.DescGeoPos if i.DescGeoPos else '未知',
-                     'AttType': attack_type_dict.get(i.AttType, '未知')})
+    # for i in flows:
+    #     logs.append({'utc_time': str(i.UTC_Time)[0: 19], 'URL': i.URL, 'NetProType': i.NetProType,
+    #                  'MesHeader': i.MesHeader, 'MesBody': i.MesBody, 'ResponseCode': i.ResponseCode,
+    #                  'ResponseBody': i.ResponseBody, 'SrcIP': i.SrcIP, 'SrcPort': i.SrcPort,
+    #                  'SrcGeoPos': i.SrcGeoPos if i.SrcGeoPos else '未知', 'DescIP': i.DescIP,
+    #                  'DescPort': i.DescPort, 'DescGeoPos': i.DescGeoPos if i.DescGeoPos else '未知',
+    #                  'AttType': attack_type_dict.get(i.AttType, '未知')})
 
     attack_infos = []  # 攻击详情
-    for i in flows.exclude(AttType=0).exclude(AttType=None):
-        attack_infos.append({'utc_time': str(i.UTC_Time)[0: 19], 'URL': i.URL, 'NetProType': i.NetProType,
-                             'MesHeader': i.MesHeader, 'MesBody': i.MesBody, 'ResponseCode': i.ResponseCode,
-                             'ResponseBody': i.ResponseBody, 'SrcIP': i.SrcIP, 'SrcPort': i.SrcPort,
-                             'SrcGeoPos': i.SrcGeoPos if i.SrcGeoPos else '未知', 'DescIP': i.DescIP,
-                             'DescPort': i.DescPort, 'DescGeoPos': i.DescGeoPos if i.DescGeoPos else '未知',
-                             'AttType': attack_type_dict.get(i.AttType, '正常')})
+    # for i in flows.exclude(AttType=0).exclude(AttType=None):
+    #     attack_infos.append({'utc_time': str(i.UTC_Time)[0: 19], 'URL': i.URL, 'NetProType': i.NetProType,
+    #                          'MesHeader': i.MesHeader, 'MesBody': i.MesBody, 'ResponseCode': i.ResponseCode,
+    #                          'ResponseBody': i.ResponseBody, 'SrcIP': i.SrcIP, 'SrcPort': i.SrcPort,
+    #                          'SrcGeoPos': i.SrcGeoPos if i.SrcGeoPos else '未知', 'DescIP': i.DescIP,
+    #                          'DescPort': i.DescPort, 'DescGeoPos': i.DescGeoPos if i.DescGeoPos else '未知',
+    #                          'AttType': attack_type_dict.get(i.AttType, '正常')})
 
     result = {'domain': domain, 'ip': ip, 'location': location, 'attack_info_list': attack_info_list,
-              'attacker_info_list': attacker_info_list, 'logs': logs, 'attack_infos': attack_infos,
+              'attacker_info_list': attacker_info_list, 'logs_length': logs_length,
+              'attack_infos_length': attack_infos_length,
               'suggestion': suggestion}
 
     return HttpResponse(json.dumps(result))
