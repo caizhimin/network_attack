@@ -398,51 +398,24 @@ def attack_flow(request):
     page = int(request.POST.get('page'))
     _type = request.POST.get('type')
     print attack_location, attacked_location
-
-    result = {'result': [], 'length': 0}
     attack_type_dict = {1: 'Sql注入', 2: 'XSS', 3: 'Web后门', 4: '远程命令执行', 5: '文件包含', 0: '正常'}
     if to_or_from == 'from':
-        # flows = Flow.objects.filter(SrcGeoPos=attack_location).exclude(AttType=None)
-        if page != 1:
-            # flows = Flow.objects.raw("""SELECT * FROM flow_flow where SrcGeoPos = '%s' LIMIT
-            #                                     """ % attack_location )
-            flows = Flow.objects.filter(SrcGeoPos=attack_location).exclude(AttType=None)[4*(page-1): page*4]
-        else:
-            flows = Flow.objects.filter(SrcGeoPos=attack_location).exclude(AttType=None)
+        flows = Flow.objects.filter(SrcGeoPos=attack_location).exclude(AttType=None)[4*(page-1): page*4]
+        if page == 1:
+            length = Flow.objects.filter(SrcGeoPos=attack_location).exclude(AttType=None).count()
 
     if to_or_from == 'to':
-        # flows = Flow.objects.filter(DescGeoPos=attacked_location).exclude(AttType=None)
-        # # flows = Flow.objects.raw("""SELECT * FROM flow_flow where DescGeoPos = '%s'
-        #                                         """ % attacked_location)
-        if page != 1:
-            # flows = Flow.objects.raw("""SELECT * FROM flow_flow where SrcGeoPos = '%s' LIMIT
-            #                                     """ % attack_location )
-            flows = Flow.objects.filter(DescGeoPos=attacked_location).exclude(AttType=None)[4*(page-1): page*4]
-        else:
-            flows = Flow.objects.filter(DescGeoPos=attacked_location).exclude(AttType=None)
+        flows = Flow.objects.filter(DescGeoPos=attacked_location).exclude(AttType=None)[4*(page-1): page*4]
+        if page == 1:
+            length = Flow.objects.filter(DescGeoPos=attacked_location).exclude(AttType=None).count()
     if _type:
-        # flows = Flow.objects.filter(AttType=int(_type)).exclude(AttType=None)
-        # flows = Flow.objects.raw("""SELECT * FROM flow_flow where AttType = %s and
-        #                                         """ % int(_type))
-        if page != 1:
-            # flows = Flow.objects.raw("""SELECT * FROM flow_flow where SrcGeoPos = '%s' LIMIT
-            #                                     """ % attack_location )
-            flows = Flow.objects.filter(AttType=int(_type)).exclude(AttType=None)[4*(page-1): page*4]
-        else:
-            flows = Flow.objects.filter(AttType=int(_type)).exclude(AttType=None)
-    # for i in flows_slice:
-    #     result['result'].append({'utc_time': str(i.UTC_Time)[0: 19], 'URL': i.URL, 'NetProType': i.NetProType,
-    #                              'MesHeader': i.MesHeader, 'MesBody': i.MesBody, 'ResponseCode': i.ResponseCode,
-    #                              'ResponseBody': i.ResponseBody, 'SrcIP': i.SrcIP, 'SrcPort': i.SrcPort,
-    #                               'SrcGeoPos': i.SrcGeoPos if i.SrcGeoPos else '未知', 'DescIP': i.DescIP,
-    #                               'DescPort': i.DescPort, 'DescGeoPos': i.DescGeoPos if i.DescGeoPos else '未知',
-    #                               'AttType': attack_type_dict.get(i.AttType, '正常')})
-
-    # return HttpResponse(json.dumps(result))
+        flows = Flow.objects.filter(AttType=int(_type)).exclude(AttType=None)[4*(page-1): page*4]
+        if page == 1:
+            length = Flow.objects.filter(AttType=int(_type)).exclude(AttType=None).count()
     if page != 1:
         return HttpResponse(json.dumps({'flows_slice': serializers.serialize('json', flows)}))
     else:
-        return HttpResponse(json.dumps({'flows_slice': serializers.serialize('json', flows[0: 4]), 'length': len(flows)}))
+        return HttpResponse(json.dumps({'flows_slice': serializers.serialize('json', flows), 'length': length}))
 
 
 def canvas(request):
