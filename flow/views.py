@@ -353,6 +353,22 @@ def report_info(request):
     return HttpResponse(json.dumps(result))
 
 
+@csrf_exempt
+def report_detail_log(request):
+    """
+    报表页面攻击详情和日志详情
+    :return:
+    """
+    _type = request.POST.get('type')
+    dest_ip = request.POST.get('dest_ip')
+    page = int(request.POST.get('page'))
+    if _type == 'attack_detail':
+        flows = Flow.objects.filter(DescIP=dest_ip).exclude(AttType=0).exclude(AttType=None)[4*(page-1): page*4]
+    elif _type == 'log_detail':
+        flows = Flow.objects.filter(DescIP=dest_ip)[4*(page-1): page*4]
+    return HttpResponse(json.dumps({'flows': serializers.serialize('json', flows)}))
+
+
 def flow_info(request, second):
     flows = Flow.objects.all().order_by('UTC_Time')[int(second): 10 + int(second)]
     result = []
