@@ -214,12 +214,13 @@ def attack_location_count(request):
 
     attack_location_counts = Flow.objects.raw("""SELECT *, count( * ) AS count
                                                 FROM flow_flow where AttType != 0
-                                                GROUP BY SrcGeoPos
+                                                GROUP BY SrcIP
                                                 ORDER BY count DESC
                                                 LIMIT 5
                                                 """)
     for i in attack_location_counts:
-        result.append({'location': i.SrcGeoPos if i.SrcGeoPos else '未知', 'count': i.count})
+        src_pos = ip_look(i.SrcIP)
+        result.append({'location': src_pos, 'count': i.count})
 
     return HttpResponse(json.dumps(sorted(sum_list_of_list_for_same_location(result), reverse=True,
                                           key=lambda s: s['count'])))
@@ -235,12 +236,13 @@ def attacked_location_count(request):
 
     attack_location_counts = Flow.objects.raw("""SELECT *, count( * ) AS count
                                                 FROM flow_flow where AttType != 0
-                                                GROUP BY DescGeoPos
+                                                GROUP BY DescIP
                                                 ORDER BY count DESC
                                                 LIMIT 5
                                                 """)
     for i in attack_location_counts:
-        result.append({'location': i.DescGeoPos if i.DescGeoPos else '未知', 'count': i.count})
+        desc_pos = ip_look(i.DescIP)
+        result.append({'location': desc_pos, 'count': i.count})
 
     return HttpResponse(json.dumps(sorted(sum_list_of_list_for_same_location(result), reverse=True,
                                           key=lambda s: s['count'])))
