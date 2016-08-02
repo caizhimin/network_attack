@@ -193,11 +193,11 @@ def attack_type_count(request):
     web_count = web.count()
     result.append({'type': 'Web后门', 'color': 'orange', 'count': web_count})
 
-    rc = Flow.objects.filter(AttType=4)
+    rc = Flow.objects.filter(AttType=5)
     rc_count = rc.count()
     result.append({'type': '远程命令执行', 'color': 'purple', 'count': rc_count})
 
-    fc = Flow.objects.filter(AttType=5)
+    fc = Flow.objects.filter(AttType=4)
     fc_count = fc.count()
     result.append({'type': '文件包含', 'color': 'deepskyblue', 'count': fc_count})
 
