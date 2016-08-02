@@ -9036,5 +9036,4 @@ def ip_look(ip):
             pos = data['city']
     except:
         pos = '未知'
-    print pos
     return pos
