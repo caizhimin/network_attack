@@ -375,7 +375,14 @@ def flow_info(request, second):
     desc_ip_list = []
     for i in flows:
         desc_ip = i.DescIP
+        src_ip = i.SrcIP
         desc_ip_list.append(desc_ip)
+        # desc_ip_num = i.DescIPNum
+        # src_ip_num = i.SrcIPNum
+        src_pos = ip_look(src_ip)
+        dec_pos = ip_look(desc_ip)
+
+
         # try:
         # response = requests.get('%s%s' % ('http://int.dpool.sina.com.cn/iplookup/iplookup.php?format=json&ip=',
         # desc_ip))
@@ -405,7 +412,7 @@ def flow_info(request, second):
     #         log.error(e)
     #         desc_address = '未找到该IP地址'
         result.append({'time': str(i.UTC_Time), 'src_ip': i.SrcIP, 'desc_ip': i.DescIP, 'url': i.URL, 'type': i.AttType,
-                       'DescGeoPos': i.DescGeoPos, 'SrcGeoPos': i.SrcGeoPos})
+                       'DescGeoPos': dec_pos, 'SrcGeoPos': src_pos})
     return HttpResponse(json.dumps(result))
 
 
@@ -9016,3 +9023,18 @@ def hello(ip):
     return requests.get(url + ip).json()
 
 
+def ip_look(ip):
+    headers = {'apikey': '24e16647f7490e170d68de37bc7254fc'}
+    r = requests.get('http://apis.baidu.com/showapi_open_bus/ip/ip?ip=%s' % ip, headers=headers)
+    try:
+        data = r.json()['showapi_res_body']
+        if data['city'] == '':
+            pos = data['region']
+            if data['region'] == '':
+                pos = data['country']
+        else:
+            pos = data['city']
+    except:
+        pos = '未知'
+    print pos
+    return pos
