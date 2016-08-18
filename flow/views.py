@@ -372,7 +372,7 @@ def report_detail_log(request):
 
 
 def flow_info(request, second):
-    flows = Flow.objects.all().order_by('UTC_Time')[int(second): 10 + int(second)]
+    flows = Flow.objects.all().order_by('-UTC_Time')[int(second): 10 + int(second)]
     result = []
     desc_ip_list = []
     for i in flows:
