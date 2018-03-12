@@ -5,6 +5,15 @@ from django.db import models
 
 # Create your models here.
 
+# AttType
+# 0 normal flow
+# 1 sql
+# 2 xss
+# 3 web 后门 web shell
+# 4 远程命令执行
+# 5 文件包含
+# 6 scanner
+# 7 exp（含cc）
 
 class Flow(models.Model):
     URL = models.CharField(max_length=100, verbose_name='url')
@@ -19,9 +28,9 @@ class Flow(models.Model):
     DescIP = models.CharField(max_length=50, blank=True, null=True, verbose_name='目的IP')
     DescPort = models.CharField(max_length=50, blank=True, null=True, verbose_name='目的端口')
     DescGeoPos = models.CharField(max_length=100, null=True, blank=True, verbose_name='目的地理位置')
-    DPI_Byte = models.CharField(max_length=50, blank=True, null=True, verbose_name='DPI流量字节数')
-    DPI_Packet = models.CharField(max_length=50, blank=True, null=True, verbose_name='DPI流量数据包个数')
-    UTC_Time = models.DateTimeField(blank=True, null=True, verbose_name='UTC时间')
+    # DPI_Byte = models.CharField(max_length=50, blank=True, null=True, verbose_name='DPI流量字节数')
+    # DPI_Packet = models.CharField(max_length=50, blank=True, null=True, verbose_name='DPI流量数据包个数')
+    UTC_Time = models.DateTimeField(blank=True, null=True, verbose_name='UTC时间', auto_now_add=False, auto_now=True)
     AttType = models.IntegerField(blank=True, null=True, verbose_name='攻击类型')
 
 

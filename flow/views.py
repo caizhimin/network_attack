@@ -8,6 +8,7 @@ from website_user.models import Website, WebSiteReport
 from utils.logger import log
 from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
+
 # Create your views here.
 
 
@@ -19,7 +20,7 @@ def sum_list_of_list_for_same_location(dict_list):
         count = dict_item['count']
         if location in name_dict:
             pos = name_dict[location]
-            result_list[pos] = {'location': location, 'count': (result_list[pos]['count'] + count)}
+            result_list[pos] = {'location': location, 'count': (result_list[pos]['count'] +  count)}
         else:
             result_list.append(dict_item)
             name_dict[location] = len(result_list) - 1
@@ -47,6 +48,16 @@ def sum_list_of_list_for_same_ip(dict_list):
 
 
 def index(request):
+    # import random
+    # for i in flows:
+    #     i.SrcGeoPos = random.choice(['上海', '北京', '西安', '成都', '乌鲁木齐', '台北', '广州','天津', '香港', '深圳', '绍兴',
+    #                                  '重庆', '青岛', '厦门', '福州', '兰州', '南京', '沈阳', '太原', '拉萨', '昆明', '武汉',
+    #                                  '郑州', '海口', '杭州', '淮安', '新加坡', '美国'])
+    #     i.DescGeoPos = random.choice(['上海', '北京', '西安', '成都', '乌鲁木齐', '台北', '广州','天津', '香港', '深圳', '绍兴',
+    #                                  '重庆', '青岛', '厦门', '福州', '兰州', '南京', '沈阳', '太原', '拉萨', '昆明', '武汉',
+    #                                  '郑州', '海口', '杭州', '淮安', '新加坡', '美国'])
+    #     i.save()
+
     return render_to_response('index.html')
 
 
@@ -219,7 +230,7 @@ def attack_location_count(request):
                                                 LIMIT 5
                                                 """)
     for i in attack_location_counts:
-        src_pos = ip_look(i.SrcIP)
+        src_pos = (i.SrcGeoPos)
         result.append({'location': src_pos, 'count': i.count})
 
     return HttpResponse(json.dumps(sorted(sum_list_of_list_for_same_location(result), reverse=True,
@@ -241,7 +252,7 @@ def attacked_location_count(request):
                                                 LIMIT 5
                                                 """)
     for i in attack_location_counts:
-        desc_pos = ip_look(i.DescIP)
+        desc_pos = (i.DescGeoPos)
         result.append({'location': desc_pos, 'count': i.count})
 
     return HttpResponse(json.dumps(sorted(sum_list_of_list_for_same_location(result), reverse=True,
@@ -372,7 +383,9 @@ def report_detail_log(request):
 
 
 def flow_info(request, second):
+
     flows = Flow.objects.all().order_by('-UTC_Time')[int(second): 10 + int(second)]
+
     result = []
     desc_ip_list = []
     for i in flows:
@@ -381,12 +394,12 @@ def flow_info(request, second):
         desc_ip_list.append(desc_ip)
         # desc_ip_num = i.DescIPNum
         # src_ip_num = i.SrcIPNum
-        src_pos = ip_look(src_ip)
-        dec_pos = ip_look(desc_ip)
+        src_pos = i.SrcGeoPos
+        dec_pos = i.DescGeoPos
 
 
         # try:
-        # response = requests.get('%s%s' % ('http://int.dpool.sina.com.cn/iplookup/iplookup.php?format=json&ip=',
+        # response = requests.get('%s%s' % ('http://int.dpool.sina.com.cn/iplookup/iplookup.php?format=json &ip=',
         # desc_ip))
         # response_json = response.json()
         #     address = response_json['province']+response_json['city']
@@ -9025,17 +9038,17 @@ def hello(ip):
     return requests.get(url + ip).json()
 
 
-def ip_look(ip):
-    headers = {'apikey': '24e16647f7490e170d68de37bc7254fc'}
-    r = requests.get('http://apis.baidu.com/showapi_open_bus/ip/ip?ip=%s' % ip, headers=headers)
-    try:
-        data = r.json()['showapi_res_body']
-        if data['city'] == '':
-            pos = data['region']
-            if data['region'] == '':
-                pos = data['country']
-        else:
-            pos = data['city']
-    except:
-        pos = '未知'
-    return pos
+# def ip_look(ip):
+#     headers = {'apikey': '24e16647f7490e170d68de37bc7254fc'}
+#     r = requests.get('http://apis.baidu.com/showapi_open_bus/ip/ip?ip=%s' % ip, headers=headers)
+#     try:
+#         data = r.json()['showapi_res_body']
+#         if data['city'] == '':
+#             pos = data['region']
+#             if data['region'] == '':
+#                 pos = data['country']
+#         else:
+#             pos = data['city']
+#     except:
+#         pos = '未知'
+#     return pos
